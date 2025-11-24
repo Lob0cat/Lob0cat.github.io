@@ -1,1 +1,118 @@
-<h1>Hello World</h1>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benim 3D Dünyam</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Arial', sans-serif; }
+        
+        /* İçerik Yazıları (3D'nin üzerinde duracaklar) */
+        #content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            pointer-events: none; /* Mouse hareketini engellemesin diye */
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            letter-spacing: 0.5rem;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            margin: 0;
+        }
+        
+        p { font-size: 1.2rem; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div id="content">
+        <h1>HOŞ GELDİNİZ</h1>
+        <p>Mouse ile gezinebilirsiniz</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. SAHNE KURULUMU
+        const scene = new THREE.Scene();
+        // Sis ekleyerek derinlik hissini artıralım
+        scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true }); // Antialias kenarları yumuşatır
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. NESNELERİ EKLEME (YILDIZLAR / PARTİKÜLLER)
+        const geometry = new THREE.BufferGeometry();
+        const vertices = [];
+
+        // 5000 tane rastgele nokta oluşturalım
+        for ( let i = 0; i < 5000; i ++ ) {
+            const x = 2000 * Math.random() - 1000;
+            const y = 2000 * Math.random() - 1000;
+            const z = 2000 * Math.random() - 1000;
+            vertices.push( x, y, z );
+        }
+
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+        
+        // Noktaların materyali (görünümü)
+        const material = new THREE.PointsMaterial( { color: 0x88ccff, size: 2 } );
+        const stars = new THREE.Points( geometry, material );
+        scene.add( stars );
+
+        // Kamera başlangıç pozisyonu
+        camera.position.z = 500;
+
+        // 3. MOUSE HAREKETİNİ YAKALAMA
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener( 'mousemove', ( event ) => {
+            mouseX = ( event.clientX - windowHalfX );
+            mouseY = ( event.clientY - windowHalfY );
+        });
+
+        // 4. ANİMASYON DÖNGÜSÜ (SÜREKLİ ÇALIŞIR)
+        const animate = function () {
+            requestAnimationFrame( animate );
+
+            // Kamerayı mouse'a göre yumuşakça hareket ettir
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+
+            stars.rotation.y += 0.0005; // Sahne yavaşça kendi de dönsün
+            
+            // Kamera pozisyonunu güncelle (hafifçe döner)
+            stars.rotation.x += 0.0002;
+
+            // Mouse ile etkileşim (Kamerayı değil evreni döndürüyoruz hissi için)
+            stars.rotation.x += 0.05 * ( targetY - stars.rotation.x );
+            stars.rotation.y += 0.05 * ( targetX - stars.rotation.y );
+
+            renderer.render( scene, camera );
+        };
+
+        animate();
+
+        // 5. EKRAN BOYUTU DEĞİŞİRSE DÜZELT
+        window.addEventListener( 'resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+        });
+    </script>
+</body>
+</html>
