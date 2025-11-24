@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>well, title</title>
+    <title>hey there</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Arial', sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Courier New', Courier, monospace; }
         
-        /* İçerik Yazıları (3D'nin üzerinde duracaklar) */
+        /* Ortadaki Yazı Alanı */
         #content {
             position: absolute;
             top: 50%;
@@ -15,103 +15,171 @@
             transform: translate(-50%, -50%);
             color: white;
             text-align: center;
-            pointer-events: none; /* Mouse hareketini engellemesin diye */
+            pointer-events: none; /* Mouse ağ ile etkileşime girsin, yazı engellemesin */
             z-index: 10;
+            background: rgba(0, 0, 0, 0.5); /* Yazı okunsun diye hafif arka plan */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
-        h1 {
-            font-size: 4rem;
-            letter-spacing: 0.5rem;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-            margin: 0;
-        }
-        
-        p { font-size: 1.2rem; color: #aaa; }
+        h1 { margin: 0; font-size: 3rem; text-transform: uppercase; letter-spacing: 5px; }
+        p { color: #00ffff; font-size: 1rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="content">
-        <h1>hello world</h1>
-        <p>we meet yet again</p>
+        <h1>NETWORK</h1>
+        <p>aren't we all connected</p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // 1. SAHNE KURULUMU
+        // --- 1. SAHNE KURULUMU ---
         const scene = new THREE.Scene();
-        // Sis ekleyerek derinlik hissini artıralım
-        scene.fog = new THREE.FogExp2(0x000000, 0.002);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.z = 400;
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true }); // Antialias kenarları yumuşatır
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // 2. NESNELERİ EKLEME (YILDIZLAR / PARTİKÜLLER)
-        const geometry = new THREE.BufferGeometry();
-        const vertices = [];
+        // --- 2. AYARLAR (Burayı değiştirerek oynayabilirsin) ---
+        const particleCount = 150; // Nokta sayısı (Çok artırırsan kasar!)
+        const connectionDistance = 100; // Bağlantı mesafesi
+        const particleSpeed = 2; // Hareket hızı
 
-        // 5000 tane rastgele nokta oluşturalım
-        for ( let i = 0; i < 5000; i ++ ) {
-            const x = 2000 * Math.random() - 1000;
-            const y = 2000 * Math.random() - 1000;
-            const z = 2000 * Math.random() - 1000;
-            vertices.push( x, y, z );
-        }
+        // --- 3. NOKTALARI OLUŞTURMA ---
+        const particlesData = []; // Noktaların konum ve hız bilgisi burada tutulacak
+        const positions = new Float32Array(particleCount * 3); // GPU için pozisyonlar
+        const colors = new Float32Array(particleCount * 3); // Renkler
 
-        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        
-        // Noktaların materyali (görünümü)
-        const material = new THREE.PointsMaterial( { color: 0x88ccff, size: 2 } );
-        const stars = new THREE.Points( geometry, material );
-        scene.add( stars );
-
-        // Kamera başlangıç pozisyonu
-        camera.position.z = 500;
-
-        // 3. MOUSE HAREKETİNİ YAKALAMA
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener( 'mousemove', ( event ) => {
-            mouseX = ( event.clientX - windowHalfX );
-            mouseY = ( event.clientY - windowHalfY );
+        // Nokta Geometrisi (Particles)
+        const pGeometry = new THREE.BufferGeometry();
+        const pMaterial = new THREE.PointsMaterial({
+            color: 0xFFFFFF,
+            size: 3,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            sizeAttenuation: false
         });
 
-        // 4. ANİMASYON DÖNGÜSÜ (SÜREKLİ ÇALIŞIR)
-        const animate = function () {
-            requestAnimationFrame( animate );
+        // Rastgele noktalar üret
+        for (let i = 0; i < particleCount; i++) {
+            const x = Math.random() * 800 - 400;
+            const y = Math.random() * 800 - 400;
+            const z = Math.random() * 800 - 400;
 
-            // Kamerayı mouse'a göre yumuşakça hareket ettir
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
 
-            stars.rotation.y += 0.0005; // Sahne yavaşça kendi de dönsün
-            
-            // Kamera pozisyonunu güncelle (hafifçe döner)
-            stars.rotation.x += 0.0002;
+            // Her noktaya rastgele bir yön (hız) veriyoruz
+            particlesData.push({
+                velocity: new THREE.Vector3(
+                    -1 + Math.random() * 2, 
+                    -1 + Math.random() * 2, 
+                    -1 + Math.random() * 2
+                ),
+                numConnections: 0
+            });
+        }
 
-            // Mouse ile etkileşim (Kamerayı değil evreni döndürüyoruz hissi için)
-            stars.rotation.x += 0.05 * ( targetY - stars.rotation.x );
-            stars.rotation.y += 0.05 * ( targetX - stars.rotation.y );
+        pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
+        const particles = new THREE.Points(pGeometry, pMaterial);
+        scene.add(particles);
 
-            renderer.render( scene, camera );
-        };
+        // --- 4. ÇİZGİLERİ OLUŞTURMA (LINES) ---
+        const linesGeometry = new THREE.BufferGeometry();
+        const linesMaterial = new THREE.LineBasicMaterial({
+            color: 0x00ffff, // Turkuaz renk
+            transparent: true,
+            opacity: 0.5,
+            linewidth: 1
+        });
+        
+        // Başlangıçta boş bir çizgi havuzu oluşturuyoruz
+        const linePositions = new Float32Array(particleCount * particleCount * 3);
+        linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
+        
+        const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+        scene.add(lines);
+
+        // --- 5. ANİMASYON DÖNGÜSÜ ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            let vertexpos = 0;
+            let colorpos = 0;
+            let numConnected = 0;
+
+            // Bütün noktaları gez ve hareket ettir
+            for (let i = 0; i < particleCount; i++) {
+                particlesData[i].numConnections = 0;
+
+                // Pozisyonu hıza göre güncelle
+                const particleData = particlesData[i];
+                
+                positions[i * 3]     += particleData.velocity.x * (particleSpeed / 2);
+                positions[i * 3 + 1] += particleData.velocity.y * (particleSpeed / 2);
+                positions[i * 3 + 2] += particleData.velocity.z * (particleSpeed / 2);
+
+                // Eğer nokta sınırdan çıkarsa geri sektir (Kutu içinde kalsınlar)
+                if (positions[i * 3 + 1] < -400 || positions[i * 3 + 1] > 400) particleData.velocity.y = -particleData.velocity.y;
+                if (positions[i * 3] < -400 || positions[i * 3] > 400) particleData.velocity.x = -particleData.velocity.x;
+                if (positions[i * 3 + 2] < -400 || positions[i * 3 + 2] > 400) particleData.velocity.z = -particleData.velocity.z;
+
+                // --- MAGIC MOMENT: BAĞLANTI KONTROLÜ ---
+                // Bu döngü her noktanın diğer noktalarla mesafesini ölçer
+                for (let j = i + 1; j < particleCount; j++) {
+                    const particleDataB = particlesData[j];
+
+                    const dx = positions[i * 3] - positions[j * 3];
+                    const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
+                    const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
+                    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    // Eğer mesafe limitin altındaysa çizgi çiz
+                    if (dist < connectionDistance) {
+                        
+                        // Mesafeye göre çizgi parlaklığı (Yakınsa parlak, uzaksa sönük)
+                        const alpha = 1.0 - dist / connectionDistance;
+
+                        linePositions[vertexpos++] = positions[i * 3];
+                        linePositions[vertexpos++] = positions[i * 3 + 1];
+                        linePositions[vertexpos++] = positions[i * 3 + 2];
+
+                        linePositions[vertexpos++] = positions[j * 3];
+                        linePositions[vertexpos++] = positions[j * 3 + 1];
+                        linePositions[vertexpos++] = positions[j * 3 + 2];
+
+                        numConnected++;
+                    }
+                }
+            }
+
+            // Çizgilerin yeni pozisyonlarını GPU'ya bildir
+            lines.geometry.setDrawRange(0, numConnected * 2);
+            lines.geometry.attributes.position.needsUpdate = true;
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            // Sahneyi yavaşça döndür (Fraktal/Uzay hissi için)
+            const time = Date.now() * 0.0005;
+            scene.rotation.y = time * 0.1; 
+            scene.rotation.z = time * 0.05;
+
+            renderer.render(scene, camera);
+        }
 
         animate();
 
-        // 5. EKRAN BOYUTU DEĞİŞİRSE DÜZELT
-        window.addEventListener( 'resize', () => {
+        // Ekran boyutu değişirse düzelt
+        window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
