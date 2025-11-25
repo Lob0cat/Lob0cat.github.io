@@ -3,184 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hey there</title>
+    <title>huh</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Courier New', Courier, monospace; }
-        
-        /* Ortadaki Yazı Alanı */
-        #content {
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            color: #0ff;
+        }
+
+        /* 3D Canvas */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI Katmanı */
+        #ui-layer {
+            position: absolute;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* Tıklamaların arkaya geçmesi için, ama butonlar pointer-events: auto olacak */
+            background: radial-gradient(circle, transparent 40%, #000000 150%);
+        }
+
+        /* Ana Konteyner */
+        .interface-container {
+            width: 80%;
+            max-width: 800px;
+            height: 60%;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 10, 20, 0.6);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            pointer-events: auto;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .interface-container:hover {
+            transform: perspective(1000px) rotateX(0deg);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+        }
+
+        /* Başlık */
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px #0ff;
+            border-bottom: 2px solid #0ff;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Dosya Grid Sistemi */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Dosya Kartları */
+        .file-card {
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            background: rgba(0, 20, 40, 0.5);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .file-card:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #0ff;
+            box-shadow: 0 0 15px #0ff;
+            transform: translateY(-5px);
+        }
+
+        .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .file-type {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        /* Modal (Dosya Açıldığında) */
+        #modal {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
-            pointer-events: none; /* Mouse ağ ile etkileşime girsin, yazı engellemesin */
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5); /* Yazı okunsun diye hafif arka plan */
+            transform: translate(-50%, -50%) scale(0);
+            width: 60%;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #0ff;
             padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
         }
-        
-        h1 { margin: 0; font-size: 3rem; text-transform: uppercase; letter-spacing: 5px; }
-        p { color: #00ffff; font-size: 1rem; margin-top: 10px; }
+
+        #modal.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #f00;
+        }
+
+        /* Scrollbar düzenlemesi */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #0ff; border-radius: 4px; }
+
     </style>
 </head>
 <body>
 
-    <div id="content">
-        <h1>hey there</h1>
-        <p>aren't we all connected</p>
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <div class="interface-container">
+            <h1>hey there</h1>
+            <p style="text-align: center; font-size: 0.8rem; opacity: 0.7;">> Veri Akışı Bağlandı... Dosya Seçin.</p>
+            
+            <div class="file-grid">
+                <div class="file-card" onclick="openFile('Hakkımda', 'Ben bir Full-Stack Geliştirici ve 3D sanatçısıyım. Geleceğin teknolojilerini tasarlıyorum.')">
+                    <div class="icon">👤</div>
+                    <div class="file-name">profile_data.txt</div>
+                    <div class="file-type">TEXT FILE</div>
+                </div>
+
+                <div class="file-card" onclick="openFile('Projeler', '1. Uzay Simülasyonu<br>2. Yapay Zeka Chatbot<br>3. E-Ticaret Platformu')">
+                    <div class="icon">🚀</div>
+                    <div class="file-name">projects_list.exe</div>
+                    <div class="file-type">APPLICATION</div>
+                </div>
+
+                <div class="file-card" onclick="openFile('Yetenekler', '• JavaScript / Three.js<br>• Python<br>• UI/UX Design<br>• React')">
+                    <div class="icon">⚡</div>
+                    <div class="file-name">skills_matrix.dat</div>
+                    <div class="file-type">DATA FILE</div>
+                </div>
+
+                <div class="file-card" onclick="openFile('İletişim', 'Email: ornek@email.com<br>GitHub: @kullanici<br>Sinyal Gücü: %98')">
+                    <div class="icon">📡</div>
+                    <div class="file-name">comm_link.log</div>
+                    <div class="file-type">SYSTEM LOG</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <span class="close-btn" onclick="closeModal()">X</span>
+        <h2 id="modal-title" style="border-bottom: 1px solid #0ff; padding-bottom: 10px;">Dosya Başlığı</h2>
+        <p id="modal-content">Dosya içeriği buraya gelecek...</p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- 1. SAHNE KURULUMU ---
+        // --- THREE.JS KURULUMU (WORMHOLE EFEKTİ) ---
+        const container = document.getElementById('canvas-container');
+        
+        // Sahne
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.z = 400;
+        // Uzay sisi ekleyelim (Derinlik hissi için)
+        scene.fog = new THREE.FogExp2(0x000000, 0.02);
 
+        // Kamera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 100;
+
+        // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
 
-        // --- 2. AYARLAR (Burayı değiştirerek oynayabilirsin) ---
-        const particleCount = 150; // Nokta sayısı (Çok artırırsan kasar!)
-        const connectionDistance = 100; // Bağlantı mesafesi
-        const particleSpeed = 2; // Hareket hızı
+        // -- Tünel Dokusu Oluşturma (Kod ile Resim yapıyoruz) --
+        function createSpaceTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            
+            // Siyah Arkaplan
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 1024, 1024);
 
-        // --- 3. NOKTALARI OLUŞTURMA ---
-        const particlesData = []; // Noktaların konum ve hız bilgisi burada tutulacak
-        const positions = new Float32Array(particleCount * 3); // GPU için pozisyonlar
-        const colors = new Float32Array(particleCount * 3); // Renkler
+            // Rastgele Yıldızlar ve Çizgiler
+            for(let i=0; i<100; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 1024;
+                const w = Math.random() * 3 + 1;
+                const h = Math.random() * 200 + 50; // Uzun çizgiler (hız efekti)
+                
+                // Neon mavisi ve beyaz renkler
+                const colors = ['#0ff', '#ffffff', '#0044ff'];
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Şeffaflık
+                ctx.globalAlpha = Math.random() * 0.8;
+                ctx.fillRect(x, y, w, h);
+            }
+            
+            // Grid çizgileri (Görseldeki kareli yapı için)
+            ctx.strokeStyle = '#003366';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+            for(let i=0; i<1024; i+=50){
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 1024);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(1024, i);
+                ctx.stroke();
+            }
 
-        // Nokta Geometrisi (Particles)
-        const pGeometry = new THREE.BufferGeometry();
-        const pMaterial = new THREE.PointsMaterial({
-            color: 0xFFFFFF,
-            size: 3,
-            blending: THREE.AdditiveBlending,
-            transparent: true,
-            sizeAttenuation: false
-        });
-
-        // Rastgele noktalar üret
-        for (let i = 0; i < particleCount; i++) {
-            const x = Math.random() * 800 - 400;
-            const y = Math.random() * 800 - 400;
-            const z = Math.random() * 800 - 400;
-
-            positions[i * 3] = x;
-            positions[i * 3 + 1] = y;
-            positions[i * 3 + 2] = z;
-
-            // Her noktaya rastgele bir yön (hız) veriyoruz
-            particlesData.push({
-                velocity: new THREE.Vector3(
-                    -1 + Math.random() * 2, 
-                    -1 + Math.random() * 2, 
-                    -1 + Math.random() * 2
-                ),
-                numConnections: 0
-            });
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(5, 20); // Dokuyu tekrarla
+            return texture;
         }
 
-        pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
-        const particles = new THREE.Points(pGeometry, pMaterial);
-        scene.add(particles);
+        // -- Tünel Geometrisi --
+        // Eğri bir yol oluşturalım (Dümdüz değil, hafif kıvrımlı solucan deliği)
+        const path = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0, 0, 500),
+            new THREE.Vector3(10, 10, 300),
+            new THREE.Vector3(-10, -20, 100),
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(20, 20, -200),
+            new THREE.Vector3(0, 0, -500),
+        ]);
 
-        // --- 4. ÇİZGİLERİ OLUŞTURMA (LINES) ---
-        const linesGeometry = new THREE.BufferGeometry();
-        const linesMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ffff, // Turkuaz renk
+        const geometry = new THREE.TubeGeometry(path, 100, 15, 16, false);
+        const material = new THREE.MeshBasicMaterial({ 
+            map: createSpaceTexture(),
+            side: THREE.BackSide, // Tünelin içini göreceğiz
             transparent: true,
-            opacity: 0.5,
-            linewidth: 1
+            opacity: 0.9
         });
-        
-        // Başlangıçta boş bir çizgi havuzu oluşturuyoruz
-        const linePositions = new Float32Array(particleCount * particleCount * 3);
-        linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
-        
-        const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
-        scene.add(lines);
 
-        // --- 5. ANİMASYON DÖNGÜSÜ ---
+        const tube = new THREE.Mesh(geometry, material);
+        scene.add(tube);
+
+        // Kamera hareketi için değişkenler
+        let percentage = 0;
+        const speed = 0.0015; // Hız
+
+        // --- ANİMASYON DÖNGÜSÜ ---
         function animate() {
             requestAnimationFrame(animate);
 
-            let vertexpos = 0;
-            let colorpos = 0;
-            let numConnected = 0;
+            // Kamerayı yol boyunca ilerlet
+            percentage += speed;
+            if (percentage >= 1) percentage = 0;
 
-            // Bütün noktaları gez ve hareket ettir
-            for (let i = 0; i < particleCount; i++) {
-                particlesData[i].numConnections = 0;
+            // Kameranın şu anki pozisyonunu al
+            const p1 = path.getPointAt(percentage);
+            // Kameranın bakacağı biraz daha ileri bir nokta al
+            const p2 = path.getPointAt((percentage + 0.01) % 1);
 
-                // Pozisyonu hıza göre güncelle
-                const particleData = particlesData[i];
-                
-                positions[i * 3]     += particleData.velocity.x * (particleSpeed / 2);
-                positions[i * 3 + 1] += particleData.velocity.y * (particleSpeed / 2);
-                positions[i * 3 + 2] += particleData.velocity.z * (particleSpeed / 2);
+            camera.position.set(p1.x, p1.y, p1.z);
+            camera.lookAt(p2);
 
-                // Eğer nokta sınırdan çıkarsa geri sektir (Kutu içinde kalsınlar)
-                if (positions[i * 3 + 1] < -400 || positions[i * 3 + 1] > 400) particleData.velocity.y = -particleData.velocity.y;
-                if (positions[i * 3] < -400 || positions[i * 3] > 400) particleData.velocity.x = -particleData.velocity.x;
-                if (positions[i * 3 + 2] < -400 || positions[i * 3 + 2] > 400) particleData.velocity.z = -particleData.velocity.z;
+            // Dokuyu hareket ettir (Hız efekti için ekstra)
+            // material.map.offset.y -= 0.02; // İstersen bu satırı açarak akışı hızlandırabilirsin
 
-                // --- MAGIC MOMENT: BAĞLANTI KONTROLÜ ---
-                // Bu döngü her noktanın diğer noktalarla mesafesini ölçer
-                for (let j = i + 1; j < particleCount; j++) {
-                    const particleDataB = particlesData[j];
-
-                    const dx = positions[i * 3] - positions[j * 3];
-                    const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
-                    const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
-                    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-                    // Eğer mesafe limitin altındaysa çizgi çiz
-                    if (dist < connectionDistance) {
-                        
-                        // Mesafeye göre çizgi parlaklığı (Yakınsa parlak, uzaksa sönük)
-                        const alpha = 1.0 - dist / connectionDistance;
-
-                        linePositions[vertexpos++] = positions[i * 3];
-                        linePositions[vertexpos++] = positions[i * 3 + 1];
-                        linePositions[vertexpos++] = positions[i * 3 + 2];
-
-                        linePositions[vertexpos++] = positions[j * 3];
-                        linePositions[vertexpos++] = positions[j * 3 + 1];
-                        linePositions[vertexpos++] = positions[j * 3 + 2];
-
-                        numConnected++;
-                    }
-                }
-            }
-
-            // Çizgilerin yeni pozisyonlarını GPU'ya bildir
-            lines.geometry.setDrawRange(0, numConnected * 2);
-            lines.geometry.attributes.position.needsUpdate = true;
-            particles.geometry.attributes.position.needsUpdate = true;
-
-            // Sahneyi yavaşça döndür (Fraktal/Uzay hissi için)
-            const time = Date.now() * 0.0005;
-            scene.rotation.y = time * 0.1; 
-            scene.rotation.z = time * 0.05;
+            // Tüneli biraz döndür (baş dönmesi efekti)
+            tube.rotation.z += 0.001;
 
             renderer.render(scene, camera);
         }
-
         animate();
 
-        // Ekran boyutu değişirse düzelt
+        // --- RESIZE AYARI ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // --- UI FONKSİYONLARI ---
+        function openFile(title, content) {
+            const modal = document.getElementById('modal');
+            const mTitle = document.getElementById('modal-title');
+            const mContent = document.getElementById('modal-content');
+
+            mTitle.innerHTML = title;
+            mContent.innerHTML = content;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
     </script>
 </body>
 </html>
