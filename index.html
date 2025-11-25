@@ -1,167 +1,187 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hey there</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden; /* Scrollbarları gizle */
-            background-color: #000;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hey there</title>
+<style>
+body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Courier New', Courier, monospace; }
+
+/* Ortadaki Yazı Alanı */
+#content {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+color: white;
+text-align: center;
+pointer-events: none; /* Mouse ağ ile etkileşime girsin, yazı engellemesin */
+z-index: 10;
+background: rgba(0, 0, 0, 0.5); /* Yazı okunsun diye hafif arka plan */
+padding: 20px;
+border-radius: 10px;
+border: 1px solid rgba(255,255,255,0.1);
+}
+
+h1 { margin: 0; font-size: 3rem; text-transform: uppercase; letter-spacing: 5px; }
+p { color: #00ffff; font-size: 1rem; margin-top: 10px; }
+</style>
 </head>
 <body>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div id="content">
+        <h1>NETWORK</h1>
+        <h1>hey there</h1>
+<p>aren't we all connected</p>
+</div>
 
-    <script>
-        // --- AYARLAR ---
-        const SPEED = 0.02;           // İlerleme hızı
-        const CURVE_INTENSITY = 8;    // Kıvrımların keskinliği
-        const MORPH_SPEED = 0.002;    // Tünelin şekil değiştirme hızı
-        const TUBE_RADIUS = 4;        // Tünel genişliği
-        
-        // --- SAHNE KURULUMU ---
-        const scene = new THREE.Scene();
-        // Uzayın derinliği için sis (Fog) - Sonunu görmememiz lazım
-        scene.fog = new THREE.FogExp2(0x000000, 0.08);
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+<script>
+// --- 1. SAHNE KURULUMU ---
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+camera.position.z = 400;
 
-        // --- DOKU (TEXTURE) OLUŞTURMA ---
-        // Işık hızı çizgileri efekti için özel canvas dokusu
-        function createHyperspaceTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1024;
-            canvas.height = 1024;
-            const ctx = canvas.getContext('2d');
-            
-            // Arkaplan
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, 1024, 1024);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-            // Parlak Çizgiler (Streaks)
-            for(let i=0; i<300; i++) {
-                const x = Math.random() * 1024;
-                const y = Math.random() * 1024;
-                const w = Math.random() * 3 + 1;
-                const h = Math.random() * 300 + 100; // Çok uzun çizgiler
-                
-                // Neon renk paleti (Mavi, Cyan, Beyaz)
-                const hue = Math.random() > 0.5 ? 200 + Math.random() * 40 : 180; 
-                ctx.fillStyle = `hsl(${hue}, 100%, ${50 + Math.random() * 50}%)`;
-                
-                ctx.globalAlpha = Math.random() * 0.8;
-                ctx.fillRect(x, y, w, h);
-            }
-            
-            // Ekstra parıltı katmanı
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#00ffff";
+// --- 2. AYARLAR (Burayı değiştirerek oynayabilirsin) ---
+const particleCount = 150; // Nokta sayısı (Çok artırırsan kasar!)
+const connectionDistance = 100; // Bağlantı mesafesi
+const particleSpeed = 2; // Hareket hızı
 
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(2, 1); // Dokuyu yay
-            return texture;
-        }
+// --- 3. NOKTALARI OLUŞTURMA ---
+const particlesData = []; // Noktaların konum ve hız bilgisi burada tutulacak
+const positions = new Float32Array(particleCount * 3); // GPU için pozisyonlar
+const colors = new Float32Array(particleCount * 3); // Renkler
 
-        const texture = createHyperspaceTexture();
+// Nokta Geometrisi (Particles)
+const pGeometry = new THREE.BufferGeometry();
+const pMaterial = new THREE.PointsMaterial({
+color: 0xFFFFFF,
+size: 3,
+blending: THREE.AdditiveBlending,
+transparent: true,
+sizeAttenuation: false
+});
 
-        // --- TÜNEL GEOMETRİSİ ---
-        // Tünelin iskeletini oluşturacak noktalar dizisi
-        const points = [];
-        for (let i = 0; i < 50; i++) {
-            // Başlangıçta hafif kıvrımlı bir yol
-            points.push(new THREE.Vector3(
-                Math.sin(i * 0.2) * 10, 
-                Math.cos(i * 0.1) * 10, 
-                i * -5 // Z ekseninde içeri doğru
-            ));
-        }
+// Rastgele noktalar üret
+for (let i = 0; i < particleCount; i++) {
+const x = Math.random() * 800 - 400;
+const y = Math.random() * 800 - 400;
+const z = Math.random() * 800 - 400;
 
-        // Eğriyi oluştur
-        let curve = new THREE.CatmullRomCurve3(points);
-        
-        // Başlangıç geometrisi
-        let geometry = new THREE.TubeGeometry(curve, 70, TUBE_RADIUS, 16, false);
-        
-        const material = new THREE.MeshBasicMaterial({ 
-            map: texture,
-            side: THREE.BackSide, // İçerden bakıyoruz
-            transparent: true,
-            opacity: 1,
-            blending: THREE.AdditiveBlending // Parlaklık efekti verir
-        });
+positions[i * 3] = x;
+positions[i * 3 + 1] = y;
+positions[i * 3 + 2] = z;
 
-        const tubeMesh = new THREE.Mesh(geometry, material);
-        scene.add(tubeMesh);
+// Her noktaya rastgele bir yön (hız) veriyoruz
+particlesData.push({
+velocity: new THREE.Vector3(
+-1 + Math.random() * 2, 
+-1 + Math.random() * 2, 
+-1 + Math.random() * 2
+),
+numConnections: 0
+});
+}
 
-        // --- ANİMASYON DEĞİŞKENLERİ ---
-        let time = 0;
-        
-        // --- LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-            time += MORPH_SPEED;
+pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
+const particles = new THREE.Points(pGeometry, pMaterial);
+scene.add(particles);
 
-            // 1. DOKU HAREKETİ (Hız hissi)
-            // Dokuyu Y ekseninde kaydırarak ileri gidiyormuş hissi veriyoruz
-            texture.offset.y += SPEED;
-            texture.offset.x -= 0.002; // Hafifçe yana da dönsün
+// --- 4. ÇİZGİLERİ OLUŞTURMA (LINES) ---
+const linesGeometry = new THREE.BufferGeometry();
+const linesMaterial = new THREE.LineBasicMaterial({
+color: 0x00ffff, // Turkuaz renk
+transparent: true,
+opacity: 0.5,
+linewidth: 1
+});
 
-            // 2. GEOMETRİ DEĞİŞİMİ (Kıvrımların değişmesi)
-            // Tünelin omurgasını oluşturan noktaları zamanla oynatıyoruz
-            for (let i = 0; i < points.length; i++) {
-                // Her noktanın X ve Y koordinatını sinüs dalgaları ile değiştir
-                // i değişkenini de işin içine katarak dalgalanma efekti yapıyoruz
-                points[i].x = Math.sin(time * 2 + i * 0.3) * CURVE_INTENSITY;
-                points[i].y = Math.cos(time * 1.5 + i * 0.2) * CURVE_INTENSITY;
-            }
+// Başlangıçta boş bir çizgi havuzu oluşturuyoruz
+const linePositions = new Float32Array(particleCount * particleCount * 3);
+linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
 
-            // Eğriyi güncelle
-            curve = new THREE.CatmullRomCurve3(points);
-            
-            // Geometriyi tamamen yenile (Eski geometriyi bellekten silmek önemli)
-            tubeMesh.geometry.dispose();
-            tubeMesh.geometry = new THREE.TubeGeometry(curve, 70, TUBE_RADIUS, 16, false);
+const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+scene.add(lines);
 
-            // 3. KAMERA HAREKETİ
-            // Kamerayı tünelin biraz içinde tutuyoruz
-            // Ama aslında biz tüneli değiştirip dokuyu kaydırdığımız için
-            // kamera nispeten sabit kalsa bile ilerliyormuşuz gibi olur.
-            // Yine de kamerayı curve'ün ilk segmentine göre yönlendirelim.
-            
-            const p1 = curve.getPointAt(0.05); // Kameranın olduğu yer
-            const p2 = curve.getPointAt(0.1);  // Baktığı yer
+// --- 5. ANİMASYON DÖNGÜSÜ ---
+function animate() {
+requestAnimationFrame(animate);
 
-            camera.position.copy(p1);
-            camera.lookAt(p2);
+let vertexpos = 0;
+let colorpos = 0;
+let numConnected = 0;
 
-            // Kamerayı tünelin kıvrımına göre biraz yatır (Banking effect)
-            camera.rotation.z += Math.sin(time) * 0.01;
+// Bütün noktaları gez ve hareket ettir
+for (let i = 0; i < particleCount; i++) {
+particlesData[i].numConnections = 0;
 
-            renderer.render(scene, camera);
-        }
+// Pozisyonu hıza göre güncelle
+const particleData = particlesData[i];
 
-        animate();
+positions[i * 3]     += particleData.velocity.x * (particleSpeed / 2);
+positions[i * 3 + 1] += particleData.velocity.y * (particleSpeed / 2);
+positions[i * 3 + 2] += particleData.velocity.z * (particleSpeed / 2);
 
-        // Pencere boyutu değişirse
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+// Eğer nokta sınırdan çıkarsa geri sektir (Kutu içinde kalsınlar)
+if (positions[i * 3 + 1] < -400 || positions[i * 3 + 1] > 400) particleData.velocity.y = -particleData.velocity.y;
+if (positions[i * 3] < -400 || positions[i * 3] > 400) particleData.velocity.x = -particleData.velocity.x;
+if (positions[i * 3 + 2] < -400 || positions[i * 3 + 2] > 400) particleData.velocity.z = -particleData.velocity.z;
 
-    </script>
+// --- MAGIC MOMENT: BAĞLANTI KONTROLÜ ---
+// Bu döngü her noktanın diğer noktalarla mesafesini ölçer
+for (let j = i + 1; j < particleCount; j++) {
+const particleDataB = particlesData[j];
+
+const dx = positions[i * 3] - positions[j * 3];
+const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
+const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
+const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+// Eğer mesafe limitin altındaysa çizgi çiz
+if (dist < connectionDistance) {
+
+// Mesafeye göre çizgi parlaklığı (Yakınsa parlak, uzaksa sönük)
+const alpha = 1.0 - dist / connectionDistance;
+
+linePositions[vertexpos++] = positions[i * 3];
+linePositions[vertexpos++] = positions[i * 3 + 1];
+linePositions[vertexpos++] = positions[i * 3 + 2];
+
+linePositions[vertexpos++] = positions[j * 3];
+linePositions[vertexpos++] = positions[j * 3 + 1];
+linePositions[vertexpos++] = positions[j * 3 + 2];
+
+numConnected++;
+}
+}
+}
+
+// Çizgilerin yeni pozisyonlarını GPU'ya bildir
+lines.geometry.setDrawRange(0, numConnected * 2);
+lines.geometry.attributes.position.needsUpdate = true;
+particles.geometry.attributes.position.needsUpdate = true;
+
+// Sahneyi yavaşça döndür (Fraktal/Uzay hissi için)
+const time = Date.now() * 0.0005;
+scene.rotation.y = time * 0.1; 
+scene.rotation.z = time * 0.05;
+
+renderer.render(scene, camera);
+}
+
+animate();
+
+// Ekran boyutu değişirse düzelt
+window.addEventListener('resize', () => {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
 </body>
 </html>
