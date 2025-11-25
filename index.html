@@ -3,340 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>huh</title>
+    <title>hey there</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            overflow: hidden; /* Scrollbarları gizle */
             background-color: #000;
-            font-family: 'Courier New', Courier, monospace;
-            color: #0ff;
         }
-
-        /* 3D Canvas */
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+        canvas {
+            display: block;
         }
-
-        /* UI Katmanı */
-        #ui-layer {
-            position: absolute;
-            z-index: 2;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none; /* Tıklamaların arkaya geçmesi için, ama butonlar pointer-events: auto olacak */
-            background: radial-gradient(circle, transparent 40%, #000000 150%);
-        }
-
-        /* Ana Konteyner */
-        .interface-container {
-            width: 80%;
-            max-width: 800px;
-            height: 60%;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            background: rgba(0, 10, 20, 0.6);
-            backdrop-filter: blur(5px);
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            pointer-events: auto;
-            transform: perspective(1000px) rotateX(5deg);
-            transition: transform 0.3s ease;
-        }
-
-        .interface-container:hover {
-            transform: perspective(1000px) rotateX(0deg);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
-        }
-
-        /* Başlık */
-        h1 {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px #0ff;
-            border-bottom: 2px solid #0ff;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        /* Dosya Grid Sistemi */
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        /* Dosya Kartları */
-        .file-card {
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            background: rgba(0, 20, 40, 0.5);
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .file-card:hover {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: #0ff;
-            box-shadow: 0 0 15px #0ff;
-            transform: translateY(-5px);
-        }
-
-        .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .file-name {
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .file-type {
-            font-size: 0.7rem;
-            color: #aaa;
-        }
-
-        /* Modal (Dosya Açıldığında) */
-        #modal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 60%;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #0ff;
-            padding: 20px;
-            z-index: 10;
-            transition: transform 0.3s ease;
-            pointer-events: auto;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
-        }
-
-        #modal.active {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            cursor: pointer;
-            font-size: 24px;
-            color: #f00;
-        }
-
-        /* Scrollbar düzenlemesi */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #0ff; border-radius: 4px; }
-
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
-
-    <div id="ui-layer">
-        <div class="interface-container">
-            <h1>hey there</h1>
-            <p style="text-align: center; font-size: 0.8rem; opacity: 0.7;">> Veri Akışı Bağlandı... Dosya Seçin.</p>
-            
-            <div class="file-grid">
-                <div class="file-card" onclick="openFile('Hakkımda', 'Ben bir Full-Stack Geliştirici ve 3D sanatçısıyım. Geleceğin teknolojilerini tasarlıyorum.')">
-                    <div class="icon">👤</div>
-                    <div class="file-name">profile_data.txt</div>
-                    <div class="file-type">TEXT FILE</div>
-                </div>
-
-                <div class="file-card" onclick="openFile('Projeler', '1. Uzay Simülasyonu<br>2. Yapay Zeka Chatbot<br>3. E-Ticaret Platformu')">
-                    <div class="icon">🚀</div>
-                    <div class="file-name">projects_list.exe</div>
-                    <div class="file-type">APPLICATION</div>
-                </div>
-
-                <div class="file-card" onclick="openFile('Yetenekler', '• JavaScript / Three.js<br>• Python<br>• UI/UX Design<br>• React')">
-                    <div class="icon">⚡</div>
-                    <div class="file-name">skills_matrix.dat</div>
-                    <div class="file-type">DATA FILE</div>
-                </div>
-
-                <div class="file-card" onclick="openFile('İletişim', 'Email: ornek@email.com<br>GitHub: @kullanici<br>Sinyal Gücü: %98')">
-                    <div class="icon">📡</div>
-                    <div class="file-name">comm_link.log</div>
-                    <div class="file-type">SYSTEM LOG</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal">
-        <span class="close-btn" onclick="closeModal()">X</span>
-        <h2 id="modal-title" style="border-bottom: 1px solid #0ff; padding-bottom: 10px;">Dosya Başlığı</h2>
-        <p id="modal-content">Dosya içeriği buraya gelecek...</p>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- THREE.JS KURULUMU (WORMHOLE EFEKTİ) ---
-        const container = document.getElementById('canvas-container');
+        // --- AYARLAR ---
+        const SPEED = 0.02;           // İlerleme hızı
+        const CURVE_INTENSITY = 8;    // Kıvrımların keskinliği
+        const MORPH_SPEED = 0.002;    // Tünelin şekil değiştirme hızı
+        const TUBE_RADIUS = 4;        // Tünel genişliği
         
-        // Sahne
+        // --- SAHNE KURULUMU ---
         const scene = new THREE.Scene();
-        // Uzay sisi ekleyelim (Derinlik hissi için)
-        scene.fog = new THREE.FogExp2(0x000000, 0.02);
+        // Uzayın derinliği için sis (Fog) - Sonunu görmememiz lazım
+        scene.fog = new THREE.FogExp2(0x000000, 0.08);
 
-        // Kamera
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 100;
-
-        // Renderer
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
+        document.body.appendChild(renderer.domElement);
 
-        // -- Tünel Dokusu Oluşturma (Kod ile Resim yapıyoruz) --
-        function createSpaceTexture() {
+        // --- DOKU (TEXTURE) OLUŞTURMA ---
+        // Işık hızı çizgileri efekti için özel canvas dokusu
+        function createHyperspaceTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 1024;
             canvas.height = 1024;
             const ctx = canvas.getContext('2d');
             
-            // Siyah Arkaplan
+            // Arkaplan
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, 1024, 1024);
 
-            // Rastgele Yıldızlar ve Çizgiler
-            for(let i=0; i<100; i++) {
+            // Parlak Çizgiler (Streaks)
+            for(let i=0; i<300; i++) {
                 const x = Math.random() * 1024;
                 const y = Math.random() * 1024;
                 const w = Math.random() * 3 + 1;
-                const h = Math.random() * 200 + 50; // Uzun çizgiler (hız efekti)
+                const h = Math.random() * 300 + 100; // Çok uzun çizgiler
                 
-                // Neon mavisi ve beyaz renkler
-                const colors = ['#0ff', '#ffffff', '#0044ff'];
-                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                // Neon renk paleti (Mavi, Cyan, Beyaz)
+                const hue = Math.random() > 0.5 ? 200 + Math.random() * 40 : 180; 
+                ctx.fillStyle = `hsl(${hue}, 100%, ${50 + Math.random() * 50}%)`;
                 
-                // Şeffaflık
                 ctx.globalAlpha = Math.random() * 0.8;
                 ctx.fillRect(x, y, w, h);
             }
             
-            // Grid çizgileri (Görseldeki kareli yapı için)
-            ctx.strokeStyle = '#003366';
-            ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.3;
-            for(let i=0; i<1024; i+=50){
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, 1024);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(1024, i);
-                ctx.stroke();
-            }
+            // Ekstra parıltı katmanı
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#00ffff";
 
             const texture = new THREE.CanvasTexture(canvas);
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(5, 20); // Dokuyu tekrarla
+            texture.repeat.set(2, 1); // Dokuyu yay
             return texture;
         }
 
-        // -- Tünel Geometrisi --
-        // Eğri bir yol oluşturalım (Dümdüz değil, hafif kıvrımlı solucan deliği)
-        const path = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(0, 0, 500),
-            new THREE.Vector3(10, 10, 300),
-            new THREE.Vector3(-10, -20, 100),
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(20, 20, -200),
-            new THREE.Vector3(0, 0, -500),
-        ]);
+        const texture = createHyperspaceTexture();
 
-        const geometry = new THREE.TubeGeometry(path, 100, 15, 16, false);
+        // --- TÜNEL GEOMETRİSİ ---
+        // Tünelin iskeletini oluşturacak noktalar dizisi
+        const points = [];
+        for (let i = 0; i < 50; i++) {
+            // Başlangıçta hafif kıvrımlı bir yol
+            points.push(new THREE.Vector3(
+                Math.sin(i * 0.2) * 10, 
+                Math.cos(i * 0.1) * 10, 
+                i * -5 // Z ekseninde içeri doğru
+            ));
+        }
+
+        // Eğriyi oluştur
+        let curve = new THREE.CatmullRomCurve3(points);
+        
+        // Başlangıç geometrisi
+        let geometry = new THREE.TubeGeometry(curve, 70, TUBE_RADIUS, 16, false);
+        
         const material = new THREE.MeshBasicMaterial({ 
-            map: createSpaceTexture(),
-            side: THREE.BackSide, // Tünelin içini göreceğiz
+            map: texture,
+            side: THREE.BackSide, // İçerden bakıyoruz
             transparent: true,
-            opacity: 0.9
+            opacity: 1,
+            blending: THREE.AdditiveBlending // Parlaklık efekti verir
         });
 
-        const tube = new THREE.Mesh(geometry, material);
-        scene.add(tube);
+        const tubeMesh = new THREE.Mesh(geometry, material);
+        scene.add(tubeMesh);
 
-        // Kamera hareketi için değişkenler
-        let percentage = 0;
-        const speed = 0.0015; // Hız
-
-        // --- ANİMASYON DÖNGÜSÜ ---
+        // --- ANİMASYON DEĞİŞKENLERİ ---
+        let time = 0;
+        
+        // --- LOOP ---
         function animate() {
             requestAnimationFrame(animate);
+            time += MORPH_SPEED;
 
-            // Kamerayı yol boyunca ilerlet
-            percentage += speed;
-            if (percentage >= 1) percentage = 0;
+            // 1. DOKU HAREKETİ (Hız hissi)
+            // Dokuyu Y ekseninde kaydırarak ileri gidiyormuş hissi veriyoruz
+            texture.offset.y += SPEED;
+            texture.offset.x -= 0.002; // Hafifçe yana da dönsün
 
-            // Kameranın şu anki pozisyonunu al
-            const p1 = path.getPointAt(percentage);
-            // Kameranın bakacağı biraz daha ileri bir nokta al
-            const p2 = path.getPointAt((percentage + 0.01) % 1);
+            // 2. GEOMETRİ DEĞİŞİMİ (Kıvrımların değişmesi)
+            // Tünelin omurgasını oluşturan noktaları zamanla oynatıyoruz
+            for (let i = 0; i < points.length; i++) {
+                // Her noktanın X ve Y koordinatını sinüs dalgaları ile değiştir
+                // i değişkenini de işin içine katarak dalgalanma efekti yapıyoruz
+                points[i].x = Math.sin(time * 2 + i * 0.3) * CURVE_INTENSITY;
+                points[i].y = Math.cos(time * 1.5 + i * 0.2) * CURVE_INTENSITY;
+            }
 
-            camera.position.set(p1.x, p1.y, p1.z);
+            // Eğriyi güncelle
+            curve = new THREE.CatmullRomCurve3(points);
+            
+            // Geometriyi tamamen yenile (Eski geometriyi bellekten silmek önemli)
+            tubeMesh.geometry.dispose();
+            tubeMesh.geometry = new THREE.TubeGeometry(curve, 70, TUBE_RADIUS, 16, false);
+
+            // 3. KAMERA HAREKETİ
+            // Kamerayı tünelin biraz içinde tutuyoruz
+            // Ama aslında biz tüneli değiştirip dokuyu kaydırdığımız için
+            // kamera nispeten sabit kalsa bile ilerliyormuşuz gibi olur.
+            // Yine de kamerayı curve'ün ilk segmentine göre yönlendirelim.
+            
+            const p1 = curve.getPointAt(0.05); // Kameranın olduğu yer
+            const p2 = curve.getPointAt(0.1);  // Baktığı yer
+
+            camera.position.copy(p1);
             camera.lookAt(p2);
 
-            // Dokuyu hareket ettir (Hız efekti için ekstra)
-            // material.map.offset.y -= 0.02; // İstersen bu satırı açarak akışı hızlandırabilirsin
-
-            // Tüneli biraz döndür (baş dönmesi efekti)
-            tube.rotation.z += 0.001;
+            // Kamerayı tünelin kıvrımına göre biraz yatır (Banking effect)
+            camera.rotation.z += Math.sin(time) * 0.01;
 
             renderer.render(scene, camera);
         }
+
         animate();
 
-        // --- RESIZE AYARI ---
+        // Pencere boyutu değişirse
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- UI FONKSİYONLARI ---
-        function openFile(title, content) {
-            const modal = document.getElementById('modal');
-            const mTitle = document.getElementById('modal-title');
-            const mContent = document.getElementById('modal-content');
-
-            mTitle.innerHTML = title;
-            mContent.innerHTML = content;
-            modal.classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
     </script>
 </body>
 </html>
