@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mind map</title>
+    <title>Space Mind Map</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,16 +25,23 @@
 </head>
 <body>
     <canvas id="canvas1"></canvas>
-    <div class="info">exploration made easy</div>
+    <div class="info">explore amde easy</div>
 
     <script>
+        const mainNodeText = "click";
+
         const myData = {
             nodes: [
-                { id: 'still trying to build this place, do not mind clicking ', group: 'main', val: 100 },
-                { id: 'TEKNOLOJİ', group: 'cat', val: 50, parent: 'BEN' },
-                { id: 'FİZİK & BİLİM', group: 'cat', val: 50, parent: 'BEN' },
-                { id: 'SANAT & TASARIM', group: 'cat', val: 50, parent: 'BEN' },
-                { id: 'YAŞAM', group: 'cat', val: 50, parent: 'BEN' },
+                // ANA NODE
+                { id: mainNodeText, group: 'main', val: 100 },
+                
+                // ANA KATEGORİLER (Parent kısımları yukarıdaki değişkene bağlandı)
+                { id: 'TEKNOLOJİ', group: 'cat', val: 50, parent: mainNodeText },
+                { id: 'FİZİK & BİLİM', group: 'cat', val: 50, parent: mainNodeText },
+                { id: 'SANAT & TASARIM', group: 'cat', val: 50, parent: mainNodeText },
+                { id: 'YAŞAM', group: 'cat', val: 50, parent: mainNodeText },
+
+                // TEKNOLOJİ DALI
                 { id: 'Yazılım', group: 'sub', val: 30, parent: 'TEKNOLOJİ' },
                 { id: 'Robotik', group: 'sub', val: 30, parent: 'TEKNOLOJİ' },
                 { id: 'Python', group: 'item', val: 15, parent: 'Yazılım' },
@@ -43,6 +50,8 @@
                 { id: 'Arduino', group: 'item', val: 12, parent: 'Robotik' },
                 { id: 'Pixhawk', group: 'item', val: 12, parent: 'Robotik' },
                 { id: 'Jetson Xavier', group: 'item', val: 12, parent: 'Robotik' },
+
+                // FİZİK DALI
                 { id: 'Simülasyon', group: 'sub', val: 30, parent: 'FİZİK & BİLİM' },
                 { id: 'Teori', group: 'sub', val: 30, parent: 'FİZİK & BİLİM' },
                 { id: 'Yörünge Mekaniği', group: 'item', val: 15, parent: 'Simülasyon' },
@@ -50,12 +59,16 @@
                 { id: 'NumPy', group: 'item', val: 12, parent: 'Simülasyon' },
                 { id: 'Lineer Cebir', group: 'item', val: 15, parent: 'Teori' },
                 { id: 'Solucan Delikleri', group: 'item', val: 12, parent: 'Teori' },
+
+                // SANAT DALI
                 { id: '3D Modelleme', group: 'sub', val: 30, parent: 'SANAT & TASARIM' },
                 { id: 'Görsel Estetik', group: 'sub', val: 30, parent: 'SANAT & TASARIM' },
                 { id: 'Blender', group: 'item', val: 15, parent: '3D Modelleme' },
                 { id: 'Fraktallar', group: 'item', val: 15, parent: 'Görsel Estetik' },
                 { id: 'Minimalizm', group: 'item', val: 12, parent: 'Görsel Estetik' },
                 { id: 'Renk Teorisi', group: 'item', val: 12, parent: 'Görsel Estetik' },
+
+                // YAŞAM DALI
                 { id: 'Kariyer', group: 'sub', val: 30, parent: 'YAŞAM' },
                 { id: 'Hobiler', group: 'sub', val: 30, parent: 'YAŞAM' },
                 { id: 'Erasmus', group: 'item', val: 15, parent: 'Kariyer' },
@@ -71,12 +84,11 @@
         let width, height;
         let particles = [];
         let particleMap = {};
-        let burstParticles = []; // Tıklama efekti için parçacıklar
+        let burstParticles = []; 
 
-        // Kamera (Hedef sistemi eklendi)
         let camera = { 
             x: 0, y: 0, zoom: 1, 
-            targetX: 0, targetY: 0, // Otomatik odaklanma için hedefler
+            targetX: 0, targetY: 0, 
             isDragging: false, startX: 0, startY: 0 
         };
         let mouse = { x: 0, y: 0, worldX: 0, worldY: 0 };
@@ -95,13 +107,11 @@
             mouse.x = e.clientX;
             mouse.y = e.clientY;
             if (camera.isDragging) {
-                // Sürüklerken hedefi de güncelle ki bırakınca geri kaymasın
                 camera.x = e.clientX - camera.startX;
                 camera.y = e.clientY - camera.startY;
                 camera.targetX = camera.x;
                 camera.targetY = camera.y;
             }
-            // Mouse'un dünya koordinatlarını hesapla (Zoom ve Pan düzeltmeli)
             mouse.worldX = (mouse.x - camera.x) / camera.zoom;
             mouse.worldY = (mouse.y - camera.y) / camera.zoom;
         });
@@ -109,32 +119,29 @@
             e.preventDefault();
             const s = 0.001;
             const newZoom = Math.max(0.2, Math.min(camera.zoom - e.deltaY * s, 4));
-            // Mouse'un olduğu yere doğru zoom yap
             const wx = (mouse.x - camera.x) / camera.zoom;
             const wy = (mouse.y - camera.y) / camera.zoom;
             camera.zoom = newZoom;
             camera.x = mouse.x - wx * camera.zoom;
             camera.y = mouse.y - wy * camera.zoom;
-            // Hedefi de güncelle
             camera.targetX = camera.x;
             camera.targetY = camera.y;
         }, { passive: false });
 
-        // --- TIKLAMA EFEKTİ PARÇACIĞI ---
         class BurstParticle {
             constructor(x, y) {
                 this.x = x; this.y = y;
                 this.size = Math.random() * 3 + 1;
                 this.speedX = Math.random() * 6 - 3;
                 this.speedY = Math.random() * 6 - 3;
-                this.color = 'rgba(200, 220, 255, 0.8)'; // Hafif mavimsi beyaz
-                this.life = 1; // Ömür (1'den 0'a)
+                this.color = 'rgba(200, 220, 255, 0.8)';
+                this.life = 1;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.life -= 0.04; // Sönme hızı
-                this.size *= 0.92; // Küçülme
+                this.life -= 0.04; 
+                this.size *= 0.92; 
             }
             draw() {
                 ctx.fillStyle = this.color;
@@ -152,8 +159,6 @@
             }
         }
 
-
-        // --- ANA NODE PARÇACIĞI ---
         class Particle {
             constructor(data) {
                 this.id = data.id;
@@ -169,7 +174,6 @@
                 this.floatSpeed = 0.001 + Math.random()*0.002;
                 this.floatOffset = 0;
                 this.hovered = false;
-                // Rastgelelik için sabit bir tohum (Gövde şekli için)
                 this.seed = this.id.charCodeAt(0) + (this.id.charCodeAt(this.id.length-1) || 0);
             }
 
@@ -186,7 +190,6 @@
                     this.floatOffset = Math.sin(this.floatAngle) * 4; 
                 }
 
-                // Mouse Hover Kontrolü (Dünya koordinatlarında)
                 let textW = this.val * 2.5 + 50; 
                 let textH = this.val + 30;
                 if (mouse.worldX > this.x - textW/2 && mouse.worldX < this.x + textW/2 &&
@@ -207,10 +210,11 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 let fontSize = 14;
-                let color = '#fff'; // Beyaz metin
+                let color = '#fff';
 
                 if (this.group === 'main') {
-                    fontSize = 60; ctx.font = `900 ${fontSize}px 'Playfair Display', serif`;
+                    // Yazı uzun olduğu için fontu biraz kıstım (60->40)
+                    fontSize = 40; ctx.font = `900 ${fontSize}px 'Playfair Display', serif`;
                 } else if (this.group === 'cat') {
                     fontSize = 24; ctx.font = `800 ${fontSize}px 'Inter', sans-serif`; color = '#eee';
                 } else if (this.group === 'sub') {
@@ -221,7 +225,6 @@
 
                 if (this.hovered) {
                     color = '#fff';
-                    // Uzay parıltısı efekti
                     ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
                     ctx.shadowBlur = 20;
                     document.body.style.cursor = 'pointer';
@@ -237,7 +240,7 @@
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width; canvas.height = height;
-            // İlk açılışta kamerayı merkeze al
+            
             if(camera.x === 0 && camera.y === 0) {
                 camera.x = width / 2; camera.y = height / 2;
                 camera.targetX = camera.x; camera.targetY = camera.y;
@@ -251,9 +254,12 @@
                 });
             }
 
-            let pMain = particleMap['BEN'];
-            pMain.destX = 0; pMain.destY = 0;
-            if(!pMain.visible) { pMain.x = 0; pMain.y = 0; }
+            // ANA NODE'U GRUBUNA GÖRE BULUYORUZ (İsmi değişse bile çalışır)
+            let pMain = particles.find(p => p.group === 'main');
+            if (pMain) {
+                pMain.destX = 0; pMain.destY = 0;
+                if(!pMain.visible) { pMain.x = 0; pMain.y = 0; }
+            }
 
             let cats = particles.filter(p => p.group === 'cat');
             let r1 = 300;
@@ -287,10 +293,9 @@
             });
         }
 
-        // --- ORGANİK, DÜZENSİZ ÇİZGİLER ---
         function drawOrganicLinks() {
             ctx.globalCompositeOperation = 'destination-over';
-            let time = Date.now() * 0.001; // Yavaş hareket için zaman faktörü
+            let time = Date.now() * 0.001; 
 
             particles.forEach(p => {
                 if (!p.visible || !p.parentId || p.opacity < 0.1) return;
@@ -305,50 +310,36 @@
                 let dist = Math.hypot(endX - startX, endY - startY);
                 if (dist < 10) return;
 
-                ctx.globalAlpha = p.opacity * 0.6; // Biraz daha silik
+                ctx.globalAlpha = p.opacity * 0.6; 
 
-                // --- CUBIC BEZIER İLE ORGANİK KIVRIMLAR ---
-                // İki kontrol noktası hesaplayacağız.
-                // Bu noktalar, düz çizginin etrafında sinüs dalgaları ile rastgele sapacak.
-                
-                // Düz çizgi vektörü
                 let dx = endX - startX;
                 let dy = endY - startY;
                 
-                // Çizgiye dik (perpendicular) vektör (sapma yönü için)
                 let perpX = -dy / dist;
                 let perpY = dx / dist;
 
-                // Sapma miktarı (mesafeye bağlı artsın)
                 let noiseIntensity = Math.min(dist * 0.25, 150); 
 
-                // Rastgelelik için node'un seed'ini ve zamanı kullan
-                // Kontrol Noktası 1 (Başlangıca yakın)
-                let t1 = 0.3; // Yolu %30'u
+                let t1 = 0.3; 
                 let noise1 = Math.sin(p.seed * 0.1 + time) * noiseIntensity;
                 let cp1X = startX + dx * t1 + perpX * noise1;
                 let cp1Y = startY + dy * t1 + perpY * noise1;
 
-                // Kontrol Noktası 2 (Bitişe yakın)
-                let t2 = 0.7; // Yolu %70'i
-                // Farklı fazda bir gürültü (cosine ve farklı çarpanlar)
-                let noise2 = Math.cos(p.seed * 0.15 + time * 1.2) * -noiseIntensity; // Tersi yöne meyilli olsun diye eksi
+                let t2 = 0.7; 
+                let noise2 = Math.cos(p.seed * 0.15 + time * 1.2) * -noiseIntensity; 
                 let cp2X = startX + dx * t2 + perpX * noise2;
                 let cp2Y = startY + dy * t2 + perpY * noise2;
 
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
-                // Cubic Bezier: (cp1x, cp1y, cp2x, cp2y, endx, endy)
                 ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
                 
-                // Stil: İnce, parlak beyazımsı bir enerji yolu
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.lineWidth = 1.5;
-                // Hafif bir parıltı (glow)
                 ctx.shadowColor = "rgba(100, 200, 255, 0.5)";
                 ctx.shadowBlur = 5;
                 ctx.stroke();
-                ctx.shadowBlur = 0; // Reset
+                ctx.shadowBlur = 0; 
 
                 ctx.globalAlpha = 1;
             });
@@ -359,12 +350,10 @@
             requestAnimationFrame(animate);
             ctx.clearRect(0, 0, width, height);
 
-            // Kamera Yumuşak Takip (Lerp)
             camera.x += (camera.targetX - camera.x) * 0.1;
             camera.y += (camera.targetY - camera.y) * 0.1;
 
             ctx.save();
-            // Dünyayı kameraya göre ötele ve ölçekle
             ctx.translate(camera.x, camera.y);
             ctx.scale(camera.zoom, camera.zoom);
 
@@ -377,7 +366,6 @@
                 if(p.hovered) isHovering = true;
             });
 
-            // Patlama efektlerini en üste çiz
             for(let i = burstParticles.length-1; i>=0; i--) {
                 burstParticles[i].update();
                 burstParticles[i].draw();
@@ -394,22 +382,14 @@
         }
 
         function expandAndCenterNode(node) {
-            // 1. Genişletme (Big Bang)
             let children = particles.filter(p => p.parentId === node.id && !p.visible);
             if (children.length > 0) {
                 children.forEach(child => {
                     child.x = node.x; child.y = node.y;
                     child.scale = 0; child.visible = true;
                 });
-                // Efekt patlat
                 createBurst(node.x, node.y + node.floatOffset);
             }
-
-            // 2. Otomatik Odaklanma (Auto-Center)
-            // Hedef: Nodun dünya koordinatları (node.destX, node.destY), 
-            // ekranın tam ortasına (width/2, height/2) denk gelmeli.
-            // Formül: EkranMerkezi = NodeDünyaKonumu * Zoom + KameraKonumu
-            // KameraKonumu = EkranMerkezi - NodeDünyaKonumu * Zoom
             camera.targetX = (width / 2) - (node.destX * camera.zoom);
             camera.targetY = (height / 2) - (node.destY * camera.zoom);
         }
