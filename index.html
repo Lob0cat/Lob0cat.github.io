@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mind Map Mobile</title>
+    <title>Mind Map v3</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,8 +12,7 @@
             background-color: transparent;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            cursor: none; 
-            /* Mobilde seçim ve büyütmeyi engelle */
+            cursor: default; /* Mouse artık görünür */
             touch-action: none; 
             -webkit-user-select: none;
         }
@@ -35,103 +34,101 @@
             position: relative; z-index: 1; 
         }
 
-        /* --- BİLGİ PANELİ (Responsive) --- */
+        /* --- YAN BİLGİ PANELİ (Sadece Masaüstü) --- */
         #sidePanel {
             position: fixed;
+            top: 0;
+            width: 350px; height: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
-            padding: 30px;
+            padding: 40px;
             color: #000;
             z-index: 10;
-            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             box-shadow: 0 0 40px rgba(0,0,0,0.2);
             display: flex; flex-direction: column;
         }
-
-        /* MASAÜSTÜ STİLİ (Varsayılan) */
-        @media (min-width: 769px) {
-            #sidePanel {
-                top: 0;
-                width: 350px; height: 100%;
-            }
-            #sidePanel.right {
-                right: 0; left: auto;
-                transform: translateX(100%);
-                border-left: 1px solid rgba(0,0,0,0.1);
-            }
-            #sidePanel.right.active { transform: translateX(0); }
-
-            #sidePanel.left {
-                left: 0; right: auto;
-                transform: translateX(-100%);
-                border-right: 1px solid rgba(0,0,0,0.1);
-            }
-            #sidePanel.left.active { transform: translateX(0); }
+        
+        #sidePanel.right {
+            right: 0; left: auto;
+            transform: translateX(100%);
+            border-left: 1px solid rgba(0,0,0,0.1);
         }
+        #sidePanel.right.active { transform: translateX(0); }
 
-        /* MOBİL STİLİ (Bottom Sheet) */
-        @media (max-width: 768px) {
-            #sidePanel {
-                bottom: 0; top: auto; left: 0; right: 0;
-                width: 100%; 
-                height: 50vh; /* Ekranın yarısı */
-                border-radius: 20px 20px 0 0;
-                transform: translateY(100%); /* Aşağı gizle */
-                border-top: 1px solid rgba(0,0,0,0.1);
-            }
-            /* Mobilde sağ/sol fark etmez, hep alttan çıkar */
-            #sidePanel.right.active, 
-            #sidePanel.left.active { 
-                transform: translateY(0); 
-            }
-            
-            #panelTitle { font-size: 24px !important; }
-            #panelDesc { font-size: 14px !important; }
+        #sidePanel.left {
+            left: 0; right: auto;
+            transform: translateX(-100%);
+            border-right: 1px solid rgba(0,0,0,0.1);
         }
+        #sidePanel.left.active { transform: translateX(0); }
 
         #panelTitle {
             font-family: 'Playfair Display', serif;
-            font-size: 32px; margin-bottom: 15px;
+            font-size: 32px; margin-bottom: 20px;
             color: #000; 
         }
         #panelDesc {
-            font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 20px;
-            overflow-y: auto; /* İçerik taşarsa kaydır */
+            font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 30px;
         }
         #closeBtn {
-            position: absolute; top: 15px; right: 15px;
+            position: absolute; top: 20px; right: 20px;
             background: none; border: none; color: #000;
-            font-size: 28px; cursor: pointer; padding: 10px;
+            font-size: 24px; cursor: pointer;
+        }
+        #closeBtn:hover { color: #555; }
+
+        /* --- MOBİL DÜZENLEMELERİ --- */
+        @media (max-width: 768px) {
+            /* Paneli mobilde tamamen gizle */
+            #sidePanel {
+                display: none !important;
+            }
+            
+            /* Bilgi kutusunu mobilde daha belirgin yap */
+            .info {
+                width: 90%;
+                text-align: center;
+                bottom: 30px !important;
+                left: 5% !important;
+                font-size: 14px !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                color: #000 !important;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
         }
 
         .info {
             position: absolute; bottom: 20px; left: 20px;
-            color: #000; font-size: 12px; pointer-events: none;
-            background: rgba(255,255,255,0.6); padding: 6px 10px; border-radius: 8px;
+            color: #000; font-size: 13px; pointer-events: none; user-select: none;
+            background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px;
             z-index: 2; 
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
     <video autoplay muted loop playsinline id="bgVideo">
         <source src="bg.mp4" type="video/mp4">
+        Tarayıcınız video etiketini desteklemiyor.
     </video>
 
     <div id="sidePanel" class="right">
         <button id="closeBtn">&times;</button>
         <h2 id="panelTitle">Başlık</h2>
         <p id="panelDesc">Detaylar...</p>
-        <div style="margin-top: auto; font-size: 11px; color: #555;">
+        <div style="margin-top: auto; font-size: 12px; color: #555;">
             ● exploration made easy
         </div>
     </div>
 
     <canvas id="canvas1"></canvas>
-    <div class="info">exploration made easy</div>
+    <div class="info" id="infoBox">exploration made easy</div>
 
     <script>
         const mainNodeText = "hey!";
         const isMobile = window.innerWidth <= 768;
+        const infoBox = document.getElementById('infoBox');
 
         const myData = {
             nodes: [
@@ -186,31 +183,29 @@
         let cursorParticles = [];
 
         let camera = { 
-            x: 0, y: 0, zoom: isMobile ? 0.7 : 1, // Mobilde biraz daha uzak başla
+            x: 0, y: 0, zoom: isMobile ? 0.6 : 1, // Mobilde biraz daha uzak başlasın
             targetX: 0, targetY: 0, 
             isDragging: false, startX: 0, startY: 0 
         };
         
-        let mouse = { x: -100, y: -100, worldX: 0, worldY: 0 }; // Ekran dışı başlat
+        let mouse = { x: -100, y: -100, worldX: 0, worldY: 0 };
         
         // --- DOKUNMATİK & MOUSE OLAYLARI ---
         let touchStartX = 0;
         let touchStartY = 0;
 
-        // MOBİL İÇİN TOUCH EVENTS
         canvas.addEventListener('touchstart', e => {
             if (e.touches.length === 1) {
                 camera.isDragging = true;
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
-                
                 camera.startX = e.touches[0].clientX - camera.x;
                 camera.startY = e.touches[0].clientY - camera.y;
             }
         }, {passive: false});
 
         canvas.addEventListener('touchmove', e => {
-            e.preventDefault(); // Sayfa scrollunu engelle
+            e.preventDefault(); 
             if (camera.isDragging && e.touches.length === 1) {
                 camera.x = e.touches[0].clientX - camera.startX;
                 camera.y = e.touches[0].clientY - camera.startY;
@@ -221,49 +216,56 @@
 
         canvas.addEventListener('touchend', e => {
             camera.isDragging = false;
-            
-            // Eğer hareket çok azsa (tıklama say)
             let touchEndX = e.changedTouches[0].clientX;
             let touchEndY = e.changedTouches[0].clientY;
             let dist = Math.hypot(touchEndX - touchStartX, touchEndY - touchStartY);
 
             if (dist < 10) {
-                // Tıklama İşlemi
-                // Touch koordinatını World koordinatına çevir
                 let tx = touchEndX;
                 let ty = touchEndY;
                 let wx = (tx - camera.x) / camera.zoom;
                 let wy = (ty - camera.y) / camera.zoom;
-
                 checkClick(wx, wy);
             }
         });
 
-        // MASAÜSTÜ İÇİN MOUSE EVENTS
-        if (!isMobile) {
-            window.addEventListener('mousedown', e => {
-                if(e.target.closest('#sidePanel')) return;
-                camera.isDragging = true;
-                camera.startX = e.clientX - camera.x;
-                camera.startY = e.clientY - camera.y;
-            });
-            window.addEventListener('mouseup', () => { camera.isDragging = false; });
-            window.addEventListener('mousemove', e => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-                if (camera.isDragging) {
-                    camera.x = e.clientX - camera.startX;
-                    camera.y = e.clientY - camera.startY;
-                    camera.targetX = camera.x;
-                    camera.targetY = camera.y;
-                }
-                mouse.worldX = (mouse.x - camera.x) / camera.zoom;
-                mouse.worldY = (mouse.y - camera.y) / camera.zoom;
-            });
-        }
+        // Mouse Events
+        window.addEventListener('mousedown', e => {
+            if(e.target.closest('#sidePanel')) return;
+            camera.isDragging = true;
+            camera.startX = e.clientX - camera.x;
+            camera.startY = e.clientY - camera.y;
+        });
+        window.addEventListener('mouseup', () => { camera.isDragging = false; });
+        window.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            if (camera.isDragging) {
+                camera.x = e.clientX - camera.startX;
+                camera.y = e.clientY - camera.startY;
+                camera.targetX = camera.x;
+                camera.targetY = camera.y;
+            }
+            mouse.worldX = (mouse.x - camera.x) / camera.zoom;
+            mouse.worldY = (mouse.y - camera.y) / camera.zoom;
+        });
+        window.addEventListener('wheel', e => {
+            e.preventDefault();
+            const s = 0.001;
+            const newZoom = Math.max(0.2, Math.min(camera.zoom - e.deltaY * s, 4));
+            const wx = (mouse.x - camera.x) / camera.zoom;
+            const wy = (mouse.y - camera.y) / camera.zoom;
+            camera.zoom = newZoom;
+            camera.x = mouse.x - wx * camera.zoom;
+            camera.y = mouse.y - wy * camera.zoom;
+            camera.targetX = camera.x;
+            camera.targetY = camera.y;
+        }, { passive: false });
+
 
         function closePanel() {
             sidePanel.classList.remove('active');
+            infoBox.innerText = "exploration made easy"; // Reset info text
             activeNode = null;
             auraParticles = []; 
             camera.targetX = width/2;
@@ -272,7 +274,7 @@
 
         closeBtn.addEventListener('click', closePanel);
 
-        // --- MOUSE SÜRÜSÜ ---
+        // --- MOUSE SÜRÜSÜ (Swarm) ---
         class CursorSwarm {
             constructor() {
                 this.x = mouse.x; this.y = mouse.y;
@@ -295,6 +297,7 @@
             }
         }
 
+        // --- AURA PARÇACIĞI ---
         class AuraParticle {
             constructor(originX, originY, type) {
                 this.originX = originX; this.originY = originY; this.type = type;
@@ -321,8 +324,8 @@
                 ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-                ctx.fill();
+                if (this.type.includes('TEKNOLOJİ')) ctx.fillRect(this.x, this.y, this.size, this.size);
+                else { ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
                 ctx.globalAlpha = 1;
             }
         }
@@ -344,7 +347,6 @@
                 this.scale = this.visible ? 1 : 0; this.opacity = this.visible ? 1 : 0;
                 this.floatAngle = Math.random()*Math.PI*2; this.floatOffset = 0;
                 this.hovered = false;
-                this.seed = this.id.charCodeAt(0);
             }
             update() {
                 if (!this.visible) return;
@@ -356,7 +358,6 @@
                 this.floatAngle += 0.002;
                 this.floatOffset = Math.sin(this.floatAngle) * 4; 
 
-                // Hover tespiti (Sadece masaüstü)
                 if (!isMobile) {
                     let textW = this.val * 3 + 50; 
                     let textH = this.val + 30;
@@ -396,13 +397,11 @@
                 ctx.strokeStyle = '#ffffff'; 
                 ctx.strokeText(this.id, 0, 0);
                 
-                // Seçiliyse veya hover'sa beyaz yap (kontrast için)
                 if (this.hovered || activeNode === this) {
                     ctx.fillStyle = '#fff';
-                    ctx.strokeStyle = '#000'; // Ters renk
+                    ctx.strokeStyle = '#000'; 
                     ctx.strokeText(this.id, 0, 0);
                     ctx.fillText(this.id, 0, 0);
-                    if(!isMobile && this.hovered) document.body.style.cursor = 'none';
                 } else {
                     ctx.fillStyle = color;
                     ctx.fillText(this.id, 0, 0);
@@ -433,12 +432,10 @@
                 });
             }
 
-            // Basit yerleşim (Radial)
             let pMain = particles.find(p => p.group === 'main');
             if(pMain && !pMain.visible) { pMain.x = 0; pMain.y = 0; }
 
             let cats = particles.filter(p => p.group === 'cat');
-            // Mobilde biraz daha dar, masaüstünde geniş
             let r1 = isMobile ? 180 : 300; 
             
             cats.forEach((p, i) => {
@@ -528,29 +525,18 @@
             children.forEach(child => { child.x = node.x; child.y = node.y; child.scale = 0; child.visible = true; });
 
             createAura(node);
-            sidePanel.classList.remove('active'); 
-
-            let targetX = 0;
-            let targetY = 0;
-
+            
+            // Eğer mobil ise sadece info kutusunu güncelle, panel açma
             if (isMobile) {
-                // Mobilde: Kamera Y ekseninde kayar, node üste gelir
-                sidePanel.classList.remove('right', 'left'); // Temizle
-                setTimeout(() => {
-                    panelTitle.innerText = node.id;
-                    panelDesc.innerText = node.desc;
-                    sidePanel.classList.add('active');
-                }, 50);
-                
-                // Node'u ekranın üst çeyreğine hizala
-                targetX = (width / 2) - (node.destX * camera.zoom);
-                // Ekran yüksekliğinin %25'i (panel %50 kaplıyor)
-                let topOffset = height * 0.25; 
-                targetY = topOffset - (node.destY * camera.zoom);
-
+                infoBox.innerText = node.desc;
+                // Mobilde node'u ortala
+                camera.targetX = (width / 2) - (node.destX * camera.zoom);
+                camera.targetY = (height / 2) - (node.destY * camera.zoom);
             } else {
-                // Masaüstü (Sağ/Sol mantığı)
+                // Masaüstü ise panel aç
+                sidePanel.classList.remove('active'); 
                 let panelWidth = 350;
+                let targetX = 0;
                 if (node.destX > 0) {
                     sidePanel.classList.remove('right'); sidePanel.classList.add('left');
                     let screenTargetX = (panelWidth + width) / 2;
@@ -560,28 +546,22 @@
                     let screenTargetX = (width - panelWidth) / 2;
                     targetX = screenTargetX - (node.destX * camera.zoom);
                 }
-                targetY = (height / 2) - (node.destY * camera.zoom);
-                
                 setTimeout(() => {
                     panelTitle.innerText = node.id;
                     panelDesc.innerText = node.desc;
                     sidePanel.classList.add('active');
                 }, 50);
+                camera.targetX = targetX;
+                camera.targetY = (height / 2) - (node.destY * camera.zoom);
             }
-
-            camera.targetX = targetX;
-            camera.targetY = targetY;
         }
 
         function checkClick(wx, wy) {
             let clickedNode = null;
-            // Tersten tara (üsttekini seçmek için)
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 if (!p.visible) continue;
-                // Basit mesafe kontrolü (Hitbox)
                 let dist = Math.hypot(p.x - wx, p.y - wy);
-                // Hitbox boyutu (yazı genişliğine göre tahmini)
                 let hitSize = p.val + 20; 
                 if (dist < hitSize) {
                     clickedNode = p;
@@ -599,7 +579,6 @@
         window.onload = () => { calculateLayout(); animate(); };
         window.addEventListener('resize', calculateLayout);
 
-        // MASAÜSTÜ CLICK EVENT
         if (!isMobile) {
             window.addEventListener('click', (e) => {
                 if(e.target.closest('#sidePanel')) return;
