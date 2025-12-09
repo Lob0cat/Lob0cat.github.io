@@ -7,23 +7,64 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            background-color: #000000; /* UZAY KARANLIĞI */
+            background-color: transparent; /* Video görünsün diye şeffaf */
             overflow: hidden;
             font-family: 'Inter', sans-serif;
             cursor: grab;
         }
         body.grabbing { cursor: grabbing; }
-        #canvas1 { display: block; width: 100vw; height: 100vh; }
+
+        /* VİDEO AYARLARI */
+        #bgVideo {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -2; /* En arkada */
+            object-fit: cover; /* Ekranı kapla */
+        }
+
+        /* KARARTMA PERDESİ (Yazıların okunması için) */
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* %60 karartma - isteğe göre değiştir */
+            z-index: -1;
+        }
+
+        #canvas1 { 
+            display: block; 
+            width: 100vw; 
+            height: 100vh;
+            position: relative;
+            z-index: 1; 
+        }
+
         .info {
             position: absolute; bottom: 20px; left: 20px;
-            color: #777; font-size: 13px; pointer-events: none; user-select: none;
+            color: #aaa; font-size: 13px; pointer-events: none; user-select: none;
             background: rgba(20,20,20,0.8); padding: 8px 12px; border-radius: 8px;
             border: 1px solid #333;
+            z-index: 2;
         }
     </style>
 </head>
 <body>
+    <video autoplay muted loop playsinline id="bgVideo">
+        <source src="bg.mp4" type="video/mp4">
+        Tarayıcınız video etiketini desteklemiyor.
+    </video>
+
+    <div class="video-overlay"></div>
+
     <canvas id="canvas1"></canvas>
     <div class="info">exploration made easy</div>
 
@@ -35,7 +76,7 @@
                 // ANA NODE
                 { id: mainNodeText, group: 'main', val: 100 },
                 
-                // ANA KATEGORİLER (Parent kısımları yukarıdaki değişkene bağlandı)
+                // ANA KATEGORİLER
                 { id: 'TEKNOLOJİ', group: 'cat', val: 50, parent: mainNodeText },
                 { id: 'FİZİK & BİLİM', group: 'cat', val: 50, parent: mainNodeText },
                 { id: 'SANAT & TASARIM', group: 'cat', val: 50, parent: mainNodeText },
@@ -213,7 +254,6 @@
                 let color = '#fff';
 
                 if (this.group === 'main') {
-                    // Yazı uzun olduğu için fontu biraz kıstım (60->40)
                     fontSize = 40; ctx.font = `900 ${fontSize}px 'Playfair Display', serif`;
                 } else if (this.group === 'cat') {
                     fontSize = 24; ctx.font = `800 ${fontSize}px 'Inter', sans-serif`; color = '#eee';
@@ -254,7 +294,6 @@
                 });
             }
 
-            // ANA NODE'U GRUBUNA GÖRE BULUYORUZ (İsmi değişse bile çalışır)
             let pMain = particles.find(p => p.group === 'main');
             if (pMain) {
                 pMain.destX = 0; pMain.destY = 0;
