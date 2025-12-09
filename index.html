@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mind Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mind Map Mobile</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,9 +12,11 @@
             background-color: transparent;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            cursor: none; /* Mouse imlecini gizledik, çünkü kendi sürümüz var */
+            cursor: none; 
+            /* Mobilde seçim ve büyütmeyi engelle */
+            touch-action: none; 
+            -webkit-user-select: none;
         }
-        body.grabbing { cursor: none; }
 
         /* VİDEO AYARLARI */
         #bgVideo {
@@ -24,7 +26,7 @@
             width: auto; height: auto;
             z-index: -2;
             object-fit: cover;
-            opacity: 0.8; /* Videoyu biraz soldurduk ki siyah yazılar net görünsün */
+            opacity: 0.8;
         }
 
         #canvas1 { 
@@ -33,54 +35,79 @@
             position: relative; z-index: 1; 
         }
 
-        /* --- YAN BİLGİ PANELİ --- */
+        /* --- BİLGİ PANELİ (Responsive) --- */
         #sidePanel {
             position: fixed;
-            top: 0;
-            width: 350px; height: 100%;
-            background: rgba(255, 255, 255, 0.9); /* Açık renk zemin (Siyah tema için) */
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
-            padding: 40px;
-            color: #000; /* Siyah yazı */
+            padding: 30px;
+            color: #000;
             z-index: 10;
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             box-shadow: 0 0 40px rgba(0,0,0,0.2);
             display: flex; flex-direction: column;
         }
-        
-        #sidePanel.right {
-            right: 0; left: auto;
-            transform: translateX(100%);
-            border-left: 1px solid rgba(0,0,0,0.1);
-        }
-        #sidePanel.right.active { transform: translateX(0); }
 
-        #sidePanel.left {
-            left: 0; right: auto;
-            transform: translateX(-100%);
-            border-right: 1px solid rgba(0,0,0,0.1);
+        /* MASAÜSTÜ STİLİ (Varsayılan) */
+        @media (min-width: 769px) {
+            #sidePanel {
+                top: 0;
+                width: 350px; height: 100%;
+            }
+            #sidePanel.right {
+                right: 0; left: auto;
+                transform: translateX(100%);
+                border-left: 1px solid rgba(0,0,0,0.1);
+            }
+            #sidePanel.right.active { transform: translateX(0); }
+
+            #sidePanel.left {
+                left: 0; right: auto;
+                transform: translateX(-100%);
+                border-right: 1px solid rgba(0,0,0,0.1);
+            }
+            #sidePanel.left.active { transform: translateX(0); }
         }
-        #sidePanel.left.active { transform: translateX(0); }
+
+        /* MOBİL STİLİ (Bottom Sheet) */
+        @media (max-width: 768px) {
+            #sidePanel {
+                bottom: 0; top: auto; left: 0; right: 0;
+                width: 100%; 
+                height: 50vh; /* Ekranın yarısı */
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%); /* Aşağı gizle */
+                border-top: 1px solid rgba(0,0,0,0.1);
+            }
+            /* Mobilde sağ/sol fark etmez, hep alttan çıkar */
+            #sidePanel.right.active, 
+            #sidePanel.left.active { 
+                transform: translateY(0); 
+            }
+            
+            #panelTitle { font-size: 24px !important; }
+            #panelDesc { font-size: 14px !important; }
+        }
 
         #panelTitle {
             font-family: 'Playfair Display', serif;
-            font-size: 32px; margin-bottom: 20px;
+            font-size: 32px; margin-bottom: 15px;
             color: #000; 
         }
         #panelDesc {
-            font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 30px;
+            font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 20px;
+            overflow-y: auto; /* İçerik taşarsa kaydır */
         }
         #closeBtn {
-            position: absolute; top: 20px; right: 20px;
+            position: absolute; top: 15px; right: 15px;
             background: none; border: none; color: #000;
-            font-size: 24px; cursor: pointer;
+            font-size: 28px; cursor: pointer; padding: 10px;
         }
-        #closeBtn:hover { color: #555; }
 
         .info {
             position: absolute; bottom: 20px; left: 20px;
-            color: #000; font-size: 13px; pointer-events: none; user-select: none;
-            background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px;
+            color: #000; font-size: 12px; pointer-events: none;
+            background: rgba(255,255,255,0.6); padding: 6px 10px; border-radius: 8px;
             z-index: 2; 
         }
     </style>
@@ -88,14 +115,13 @@
 <body>
     <video autoplay muted loop playsinline id="bgVideo">
         <source src="bg.mp4" type="video/mp4">
-        Tarayıcınız video etiketini desteklemiyor.
     </video>
 
     <div id="sidePanel" class="right">
         <button id="closeBtn">&times;</button>
         <h2 id="panelTitle">Başlık</h2>
         <p id="panelDesc">Detaylar...</p>
-        <div style="margin-top: auto; font-size: 12px; color: #555;">
+        <div style="margin-top: auto; font-size: 11px; color: #555;">
             ● exploration made easy
         </div>
     </div>
@@ -105,6 +131,7 @@
 
     <script>
         const mainNodeText = "hey!";
+        const isMobile = window.innerWidth <= 768;
 
         const myData = {
             nodes: [
@@ -156,16 +183,84 @@
         let particleMap = {};
         let auraParticles = []; 
         let activeNode = null; 
-
-        // Mouse Sürüsü için değişkenler
         let cursorParticles = [];
 
         let camera = { 
-            x: 0, y: 0, zoom: 1, 
+            x: 0, y: 0, zoom: isMobile ? 0.7 : 1, // Mobilde biraz daha uzak başla
             targetX: 0, targetY: 0, 
             isDragging: false, startX: 0, startY: 0 
         };
-        let mouse = { x: 0, y: 0, worldX: 0, worldY: 0 };
+        
+        let mouse = { x: -100, y: -100, worldX: 0, worldY: 0 }; // Ekran dışı başlat
+        
+        // --- DOKUNMATİK & MOUSE OLAYLARI ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        // MOBİL İÇİN TOUCH EVENTS
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                camera.isDragging = true;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                
+                camera.startX = e.touches[0].clientX - camera.x;
+                camera.startY = e.touches[0].clientY - camera.y;
+            }
+        }, {passive: false});
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault(); // Sayfa scrollunu engelle
+            if (camera.isDragging && e.touches.length === 1) {
+                camera.x = e.touches[0].clientX - camera.startX;
+                camera.y = e.touches[0].clientY - camera.startY;
+                camera.targetX = camera.x;
+                camera.targetY = camera.y;
+            }
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', e => {
+            camera.isDragging = false;
+            
+            // Eğer hareket çok azsa (tıklama say)
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+            let dist = Math.hypot(touchEndX - touchStartX, touchEndY - touchStartY);
+
+            if (dist < 10) {
+                // Tıklama İşlemi
+                // Touch koordinatını World koordinatına çevir
+                let tx = touchEndX;
+                let ty = touchEndY;
+                let wx = (tx - camera.x) / camera.zoom;
+                let wy = (ty - camera.y) / camera.zoom;
+
+                checkClick(wx, wy);
+            }
+        });
+
+        // MASAÜSTÜ İÇİN MOUSE EVENTS
+        if (!isMobile) {
+            window.addEventListener('mousedown', e => {
+                if(e.target.closest('#sidePanel')) return;
+                camera.isDragging = true;
+                camera.startX = e.clientX - camera.x;
+                camera.startY = e.clientY - camera.y;
+            });
+            window.addEventListener('mouseup', () => { camera.isDragging = false; });
+            window.addEventListener('mousemove', e => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+                if (camera.isDragging) {
+                    camera.x = e.clientX - camera.startX;
+                    camera.y = e.clientY - camera.startY;
+                    camera.targetX = camera.x;
+                    camera.targetY = camera.y;
+                }
+                mouse.worldX = (mouse.x - camera.x) / camera.zoom;
+                mouse.worldY = (mouse.y - camera.y) / camera.zoom;
+            });
+        }
 
         function closePanel() {
             sidePanel.classList.remove('active');
@@ -177,122 +272,57 @@
 
         closeBtn.addEventListener('click', closePanel);
 
-        window.addEventListener('mousedown', e => {
-            if(e.target.closest('#sidePanel')) return;
-            camera.isDragging = true;
-            camera.startX = e.clientX - camera.x;
-            camera.startY = e.clientY - camera.y;
-        });
-        window.addEventListener('mouseup', () => {
-            camera.isDragging = false;
-        });
-        window.addEventListener('mousemove', e => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            if (camera.isDragging) {
-                camera.x = e.clientX - camera.startX;
-                camera.y = e.clientY - camera.startY;
-                camera.targetX = camera.x;
-                camera.targetY = camera.y;
-            }
-            mouse.worldX = (mouse.x - camera.x) / camera.zoom;
-            mouse.worldY = (mouse.y - camera.y) / camera.zoom;
-        });
-        window.addEventListener('wheel', e => {
-            e.preventDefault();
-            const s = 0.001;
-            const newZoom = Math.max(0.2, Math.min(camera.zoom - e.deltaY * s, 4));
-            const wx = (mouse.x - camera.x) / camera.zoom;
-            const wy = (mouse.y - camera.y) / camera.zoom;
-            camera.zoom = newZoom;
-            camera.x = mouse.x - wx * camera.zoom;
-            camera.y = mouse.y - wy * camera.zoom;
-            camera.targetX = camera.x;
-            camera.targetY = camera.y;
-        }, { passive: false });
-
-
-        // --- MOUSE SÜRÜSÜ SINIFI ---
+        // --- MOUSE SÜRÜSÜ ---
         class CursorSwarm {
             constructor() {
-                this.x = mouse.x;
-                this.y = mouse.y;
+                this.x = mouse.x; this.y = mouse.y;
                 this.size = Math.random() * 2 + 1;
                 this.angle = Math.random() * Math.PI * 2;
-                this.speed = 0.05 + Math.random() * 0.05;
                 this.offset = Math.random() * 20;
             }
-
             update() {
-                // Mouse'u takip et (Lerp - Gecikmeli takip)
-                // Hedef nokta: Mouse konumu + etrafında dönme hareketi
                 this.angle += 0.05;
                 let targetX = mouse.x + Math.cos(this.angle) * this.offset;
                 let targetY = mouse.y + Math.sin(this.angle) * this.offset;
-
                 this.x += (targetX - this.x) * 0.1;
                 this.y += (targetY - this.y) * 0.1;
             }
-
             draw() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Siyah parçacıklar
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        // --- KALICI AURA PARÇACIĞI (Siyah versiyon) ---
         class AuraParticle {
             constructor(originX, originY, type) {
-                this.originX = originX;
-                this.originY = originY;
-                this.type = type;
+                this.originX = originX; this.originY = originY; this.type = type;
                 this.angle = Math.random() * Math.PI * 2;
                 this.radius = 50 + Math.random() * 150; 
                 this.x = this.originX + Math.cos(this.angle) * this.radius;
                 this.y = this.originY + Math.sin(this.angle) * this.radius;
                 this.angularSpeed = (Math.random() - 0.5) * 0.02;
-                this.radialSpeed = Math.random() * 0.5;
                 this.originalRadius = this.radius;
-                this.life = 0; 
-                this.maxLife = 0.6 + Math.random() * 0.4; 
+                this.life = 0; this.maxLife = 0.6 + Math.random() * 0.4; 
 
-                // Aura renkleri (Daha pastel ve koyu)
-                if (type.includes('SANAT')) {
-                    this.color = `rgba(100, 50, 50, 0.4)`; 
-                    this.size = Math.random() * 4 + 2;
-                } else if (type.includes('TEKNOLOJİ')) {
-                    this.color = `rgba(50, 80, 50, 0.4)`; 
-                    this.size = Math.random() * 3 + 1; 
-                } else if (type.includes('FİZİK')) {
-                    this.color = `rgba(50, 50, 80, 0.4)`;
-                    this.size = Math.random() * 2 + 1;
-                } else {
-                    this.color = 'rgba(50, 50, 50, 0.4)'; 
-                    this.size = Math.random() * 3 + 1;
-                }
+                if (type.includes('SANAT')) { this.color = `rgba(100, 50, 50, 0.4)`; this.size = Math.random() * 4 + 2; } 
+                else if (type.includes('TEKNOLOJİ')) { this.color = `rgba(50, 80, 50, 0.4)`; this.size = Math.random() * 3 + 1; } 
+                else { this.color = 'rgba(50, 50, 50, 0.4)'; this.size = Math.random() * 3 + 1; }
             }
-
             update() {
                 if (this.life < this.maxLife) this.life += 0.02;
                 this.angle += this.angularSpeed;
-                let pulse = Math.sin(Date.now() * 0.002 + this.originalRadius) * 20;
-                let currentRadius = this.originalRadius + pulse;
+                let currentRadius = this.originalRadius + Math.sin(Date.now() * 0.002 + this.originalRadius) * 20;
                 this.x = this.originX + Math.cos(this.angle) * currentRadius;
                 this.y = this.originY + Math.sin(this.angle) * currentRadius;
             }
-
             draw() {
                 ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                if (this.type.includes('TEKNOLOJİ')) {
-                    ctx.fillRect(this.x, this.y, this.size, this.size);
-                } else {
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-                    ctx.fill();
-                }
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+                ctx.fill();
                 ctx.globalAlpha = 1;
             }
         }
@@ -307,46 +337,37 @@
 
         class Particle {
             constructor(data) {
-                this.id = data.id;
-                this.group = data.group;
-                this.val = data.val;
-                this.parentId = data.parent;
-                this.desc = data.desc || "Keşfedilmeyi bekleyen bir düğüm...";
-                this.destX = 0; this.destY = 0;
-                this.x = 0; this.y = 0;
+                this.id = data.id; this.group = data.group; this.val = data.val; this.parentId = data.parent;
+                this.desc = data.desc || "Detaylar yakında...";
+                this.destX = 0; this.destY = 0; this.x = 0; this.y = 0;
                 this.visible = (this.group === 'main');
-                this.scale = this.visible ? 1 : 0; 
-                this.opacity = this.visible ? 1 : 0;
-                this.floatAngle = Math.random()*Math.PI*2;
-                this.floatSpeed = 0.001 + Math.random()*0.002;
-                this.floatOffset = 0;
+                this.scale = this.visible ? 1 : 0; this.opacity = this.visible ? 1 : 0;
+                this.floatAngle = Math.random()*Math.PI*2; this.floatOffset = 0;
                 this.hovered = false;
-                this.seed = this.id.charCodeAt(0) + (this.id.charCodeAt(this.id.length-1) || 0);
+                this.seed = this.id.charCodeAt(0);
             }
-
             update() {
                 if (!this.visible) return;
                 this.x += (this.destX - this.x) * 0.08; 
                 this.y += (this.destY - this.y) * 0.08;
                 if (this.scale < 1) this.scale += (1 - this.scale) * 0.1;
                 if (this.opacity < 1) this.opacity += (1 - this.opacity) * 0.1;
+                
+                this.floatAngle += 0.002;
+                this.floatOffset = Math.sin(this.floatAngle) * 4; 
 
-                let dist = Math.hypot(this.destX - this.x, this.destY - this.y);
-                if (dist < 2) {
-                    this.floatAngle += this.floatSpeed;
-                    this.floatOffset = Math.sin(this.floatAngle) * 4; 
-                }
-
-                let textW = this.val * 3 + 50; 
-                let textH = this.val + 30;
-                if (mouse.worldX > this.x - textW/2 && mouse.worldX < this.x + textW/2 &&
-                    mouse.worldY > this.y - textH/2 + this.floatOffset && mouse.worldY < this.y + textH/2 + this.floatOffset) {
-                    this.hovered = true;
-                } else {
-                    this.hovered = false;
+                // Hover tespiti (Sadece masaüstü)
+                if (!isMobile) {
+                    let textW = this.val * 3 + 50; 
+                    let textH = this.val + 30;
+                    if (mouse.worldX > this.x - textW/2 && mouse.worldX < this.x + textW/2 &&
+                        mouse.worldY > this.y - textH/2 + this.floatOffset && mouse.worldY < this.y + textH/2 + this.floatOffset) {
+                        this.hovered = true;
+                    } else {
+                        this.hovered = false;
+                    }
                 }
             }
-
             draw() {
                 if (!this.visible || this.opacity < 0.01) return;
                 ctx.save();
@@ -354,43 +375,45 @@
                 ctx.scale(this.scale, this.scale);
                 ctx.globalAlpha = this.opacity;
 
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                let fontSize = 14;
-                let color = '#000000'; // DÜZ SİYAH
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                let fontSize = isMobile ? 12 : 14; 
+                let color = '#000000';
 
                 if (this.group === 'main') {
-                    fontSize = 50; 
+                    fontSize = isMobile ? 36 : 50; 
                     ctx.font = `900 ${fontSize}px 'Playfair Display', serif`;
                 } else if (this.group === 'cat') {
-                    fontSize = 28; 
-                    ctx.font = `800 ${fontSize}px 'Inter', sans-serif`; 
-                    color = '#111';
+                    fontSize = isMobile ? 20 : 28; 
+                    ctx.font = `800 ${fontSize}px 'Inter', sans-serif`; color = '#111';
                 } else if (this.group === 'sub') {
-                    fontSize = 18; 
-                    ctx.font = `600 ${fontSize}px 'Inter', sans-serif`; 
-                    color = '#222';
+                    fontSize = isMobile ? 14 : 18; 
+                    ctx.font = `600 ${fontSize}px 'Inter', sans-serif`; color = '#222';
                 } else {
-                    fontSize = 14; 
-                    ctx.font = `400 ${fontSize}px 'JetBrains Mono', monospace`; 
-                    color = '#333';
+                    ctx.font = `400 ${fontSize}px 'JetBrains Mono', monospace`; color = '#333';
                 }
 
-                // Neon yok, Kontür var (Video üstünde okunabilirlik için)
                 ctx.lineWidth = 3;
-                ctx.strokeStyle = '#ffffff'; // Beyaz dış hat
+                ctx.strokeStyle = '#ffffff'; 
                 ctx.strokeText(this.id, 0, 0);
-
-                ctx.fillStyle = color;
-                ctx.fillText(this.id, 0, 0);
+                
+                // Seçiliyse veya hover'sa beyaz yap (kontrast için)
+                if (this.hovered || activeNode === this) {
+                    ctx.fillStyle = '#fff';
+                    ctx.strokeStyle = '#000'; // Ters renk
+                    ctx.strokeText(this.id, 0, 0);
+                    ctx.fillText(this.id, 0, 0);
+                    if(!isMobile && this.hovered) document.body.style.cursor = 'none';
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.fillText(this.id, 0, 0);
+                }
                 
                 ctx.restore();
             }
         }
 
         function calculateLayout() {
-            width = window.innerWidth;
-            height = window.innerHeight;
+            width = window.innerWidth; height = window.innerHeight;
             canvas.width = width; canvas.height = height;
             
             if(camera.x === 0 && camera.y === 0) {
@@ -398,11 +421,8 @@
                 camera.targetX = camera.x; camera.targetY = camera.y;
             }
             
-            // Mouse sürüsü init
-            if(cursorParticles.length === 0) {
-                for(let i=0; i<12; i++) {
-                    cursorParticles.push(new CursorSwarm());
-                }
+            if(!isMobile && cursorParticles.length === 0) {
+                for(let i=0; i<12; i++) cursorParticles.push(new CursorSwarm());
             }
 
             if (particles.length === 0) {
@@ -413,14 +433,14 @@
                 });
             }
 
+            // Basit yerleşim (Radial)
             let pMain = particles.find(p => p.group === 'main');
-            if (pMain) {
-                pMain.destX = 0; pMain.destY = 0;
-                if(!pMain.visible) { pMain.x = 0; pMain.y = 0; }
-            }
+            if(pMain && !pMain.visible) { pMain.x = 0; pMain.y = 0; }
 
             let cats = particles.filter(p => p.group === 'cat');
-            let r1 = 300;
+            // Mobilde biraz daha dar, masaüstünde geniş
+            let r1 = isMobile ? 180 : 300; 
+            
             cats.forEach((p, i) => {
                 let angle = (Math.PI*2 / cats.length) * i - Math.PI/2;
                 p.destX = Math.cos(angle) * r1;
@@ -428,9 +448,9 @@
                 
                 let subs = particles.filter(sub => sub.parentId === p.id);
                 if (subs.length > 0) {
-                    let spread = Math.PI / 1.8;
+                    let spread = Math.PI / 1.5;
                     let startA = angle - spread/2;
-                    let r2 = r1 + 280;
+                    let r2 = r1 + (isMobile ? 160 : 280);
                     subs.forEach((sub, j) => {
                         let subA = startA + (spread/(subs.length+1))*(j+1);
                         sub.destX = Math.cos(subA) * r2;
@@ -438,7 +458,7 @@
                         let items = particles.filter(it => it.parentId === sub.id);
                         if (items.length > 0) {
                             let itemBaseA = Math.atan2(sub.destY, sub.destX);
-                            let r3 = 200;
+                            let r3 = isMobile ? 120 : 200;
                             items.forEach((item, k) => {
                                 let offset = (k - (items.length-1)/2) * 0.35;
                                 let itemA = itemBaseA + offset;
@@ -452,47 +472,29 @@
         }
 
         function drawOrganicLinks() {
-            ctx.globalCompositeOperation = 'source-over'; // Siyah için normal mod
-            let time = Date.now() * 0.001; 
-
+            ctx.globalCompositeOperation = 'source-over';
             particles.forEach(p => {
                 if (!p.visible || !p.parentId || p.opacity < 0.1) return;
                 let parent = particleMap[p.parentId];
                 if (!parent) return;
 
-                let startX = parent.x; 
-                let startY = parent.y + parent.floatOffset;
-                let endX = p.x;
-                let endY = p.y + p.floatOffset;
-
+                let startX = parent.x; let startY = parent.y + parent.floatOffset;
+                let endX = p.x; let endY = p.y + p.floatOffset;
                 let dist = Math.hypot(endX - startX, endY - startY);
                 if (dist < 10) return;
 
-                ctx.globalAlpha = p.opacity * 0.6; 
-
-                let dx = endX - startX;
-                let dy = endY - startY;
-                let perpX = -dy / dist;
-                let perpY = dx / dist;
-                let noiseIntensity = Math.min(dist * 0.25, 150); 
-                let t1 = 0.3; 
-                let noise1 = Math.sin(p.seed * 0.1 + time) * noiseIntensity;
-                let cp1X = startX + dx * t1 + perpX * noise1;
-                let cp1Y = startY + dy * t1 + perpY * noise1;
-                let t2 = 0.7; 
-                let noise2 = Math.cos(p.seed * 0.15 + time * 1.2) * -noiseIntensity; 
-                let cp2X = startX + dx * t2 + perpX * noise2;
-                let cp2Y = startY + dy * t2 + perpY * noise2;
+                ctx.globalAlpha = p.opacity * 0.5; 
+                let dx = endX - startX; let dy = endY - startY;
+                let perpX = -dy / dist; let perpY = dx / dist;
+                let t1 = 0.3; let cp1X = startX + dx * t1 + perpX * 50; let cp1Y = startY + dy * t1 + perpY * 50;
+                let t2 = 0.7; let cp2X = startX + dx * t2 - perpX * 50; let cp2Y = startY + dy * t2 - perpY * 50;
 
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
                 ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
-                
-                // KOYU ÇİZGİLER
                 ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-                ctx.lineWidth = 1.5; 
+                ctx.lineWidth = isMobile ? 1 : 1.5; 
                 ctx.stroke();
-                
                 ctx.globalAlpha = 1;
             });
         }
@@ -509,97 +511,103 @@
             ctx.scale(camera.zoom, camera.zoom);
 
             drawOrganicLinks();
-            
-            for(let i = 0; i < auraParticles.length; i++) {
-                auraParticles[i].update();
-                auraParticles[i].draw();
-            }
+            for(let i = 0; i < auraParticles.length; i++) { auraParticles[i].update(); auraParticles[i].draw(); }
+            particles.forEach(p => { p.update(); p.draw(); });
+            ctx.restore();
 
-            let isHovering = false;
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-                if(p.hovered) isHovering = true;
-            });
-
-            ctx.restore(); // Kamera dünyasından çık (Ekran koordinatlarına dön)
-
-            // --- MOUSE SÜRÜSÜNÜ ÇİZ ---
-            // Bunu restore'dan sonra yapıyoruz ki zoom/pan'dan etkilenmesin, hep mouse ucunda olsun
-            for(let i=0; i<cursorParticles.length; i++) {
-                cursorParticles[i].update();
-                cursorParticles[i].draw();
+            if(!isMobile) {
+                for(let i=0; i<cursorParticles.length; i++) { cursorParticles[i].update(); cursorParticles[i].draw(); }
             }
         }
 
         function handleNodeClick(node) {
-            if (activeNode === node) {
-                closePanel();
-                return;
-            }
-
+            if (activeNode === node) { closePanel(); return; }
             activeNode = node;
 
             let children = particles.filter(p => p.parentId === node.id && !p.visible);
-            if (children.length > 0) {
-                children.forEach(child => {
-                    child.x = node.x; child.y = node.y;
-                    child.scale = 0; child.visible = true;
-                });
-            }
+            children.forEach(child => { child.x = node.x; child.y = node.y; child.scale = 0; child.visible = true; });
 
             createAura(node);
-
             sidePanel.classList.remove('active'); 
-            
-            let panelWidth = 350;
-            let targetX = 0;
 
-            if (node.destX > 0) {
-                sidePanel.classList.remove('right');
-                sidePanel.classList.add('left');
-                let screenTargetX = (panelWidth + width) / 2;
-                targetX = screenTargetX - (node.destX * camera.zoom);
+            let targetX = 0;
+            let targetY = 0;
+
+            if (isMobile) {
+                // Mobilde: Kamera Y ekseninde kayar, node üste gelir
+                sidePanel.classList.remove('right', 'left'); // Temizle
+                setTimeout(() => {
+                    panelTitle.innerText = node.id;
+                    panelDesc.innerText = node.desc;
+                    sidePanel.classList.add('active');
+                }, 50);
+                
+                // Node'u ekranın üst çeyreğine hizala
+                targetX = (width / 2) - (node.destX * camera.zoom);
+                // Ekran yüksekliğinin %25'i (panel %50 kaplıyor)
+                let topOffset = height * 0.25; 
+                targetY = topOffset - (node.destY * camera.zoom);
 
             } else {
-                sidePanel.classList.remove('left');
-                sidePanel.classList.add('right');
-                let screenTargetX = (width - panelWidth) / 2;
-                targetX = screenTargetX - (node.destX * camera.zoom);
+                // Masaüstü (Sağ/Sol mantığı)
+                let panelWidth = 350;
+                if (node.destX > 0) {
+                    sidePanel.classList.remove('right'); sidePanel.classList.add('left');
+                    let screenTargetX = (panelWidth + width) / 2;
+                    targetX = screenTargetX - (node.destX * camera.zoom);
+                } else {
+                    sidePanel.classList.remove('left'); sidePanel.classList.add('right');
+                    let screenTargetX = (width - panelWidth) / 2;
+                    targetX = screenTargetX - (node.destX * camera.zoom);
+                }
+                targetY = (height / 2) - (node.destY * camera.zoom);
+                
+                setTimeout(() => {
+                    panelTitle.innerText = node.id;
+                    panelDesc.innerText = node.desc;
+                    sidePanel.classList.add('active');
+                }, 50);
             }
 
-            setTimeout(() => {
-                panelTitle.innerText = node.id;
-                panelDesc.innerText = node.desc;
-                sidePanel.classList.add('active');
-            }, 50);
-
             camera.targetX = targetX;
-            camera.targetY = (height / 2) - (node.destY * camera.zoom);
+            camera.targetY = targetY;
+        }
+
+        function checkClick(wx, wy) {
+            let clickedNode = null;
+            // Tersten tara (üsttekini seçmek için)
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                if (!p.visible) continue;
+                // Basit mesafe kontrolü (Hitbox)
+                let dist = Math.hypot(p.x - wx, p.y - wy);
+                // Hitbox boyutu (yazı genişliğine göre tahmini)
+                let hitSize = p.val + 20; 
+                if (dist < hitSize) {
+                    clickedNode = p;
+                    break;
+                }
+            }
+
+            if (clickedNode) {
+                handleNodeClick(clickedNode);
+            } else {
+                closePanel();
+            }
         }
 
         window.onload = () => { calculateLayout(); animate(); };
         window.addEventListener('resize', calculateLayout);
 
-        window.addEventListener('click', (e) => {
-            if(e.target.closest('#sidePanel')) return;
-
-            if (!camera.isDragging) {
-                let clickedNode = null;
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    if (particles[i].visible && particles[i].hovered) {
-                        clickedNode = particles[i];
-                        break;
-                    }
+        // MASAÜSTÜ CLICK EVENT
+        if (!isMobile) {
+            window.addEventListener('click', (e) => {
+                if(e.target.closest('#sidePanel')) return;
+                if (!camera.isDragging) {
+                    checkClick(mouse.worldX, mouse.worldY);
                 }
-
-                if (clickedNode) {
-                    handleNodeClick(clickedNode);
-                } else {
-                    closePanel();
-                }
-            }
-        });
+            });
+        }
     </script>
 </body>
 </html>
