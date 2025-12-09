@@ -12,9 +12,9 @@
             background-color: transparent;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            cursor: grab;
+            cursor: none; /* Mouse imlecini gizledik, çünkü kendi sürümüz var */
         }
-        body.grabbing { cursor: grabbing; }
+        body.grabbing { cursor: none; }
 
         /* VİDEO AYARLARI */
         #bgVideo {
@@ -24,6 +24,7 @@
             width: auto; height: auto;
             z-index: -2;
             object-fit: cover;
+            opacity: 0.8; /* Videoyu biraz soldurduk ki siyah yazılar net görünsün */
         }
 
         #canvas1 { 
@@ -37,52 +38,50 @@
             position: fixed;
             top: 0;
             width: 350px; height: 100%;
-            background: rgba(10, 10, 15, 0.85); /* Yarı saydam koyu zemin */
-            backdrop-filter: blur(12px); /* Buzlu cam efekti */
+            background: rgba(255, 255, 255, 0.9); /* Açık renk zemin (Siyah tema için) */
+            backdrop-filter: blur(12px);
             padding: 40px;
-            color: #fff;
+            color: #000; /* Siyah yazı */
             z-index: 10;
             transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            box-shadow: 0 0 40px rgba(0,0,0,0.2);
             display: flex; flex-direction: column;
         }
         
-        /* SAĞDAN AÇILMA DURUMU */
         #sidePanel.right {
             right: 0; left: auto;
             transform: translateX(100%);
-            border-left: 1px solid rgba(255,255,255,0.1);
+            border-left: 1px solid rgba(0,0,0,0.1);
         }
         #sidePanel.right.active { transform: translateX(0); }
 
-        /* SOLDAN AÇILMA DURUMU */
         #sidePanel.left {
             left: 0; right: auto;
             transform: translateX(-100%);
-            border-right: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(0,0,0,0.1);
         }
         #sidePanel.left.active { transform: translateX(0); }
 
         #panelTitle {
             font-family: 'Playfair Display', serif;
             font-size: 32px; margin-bottom: 20px;
-            color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            color: #000; 
         }
         #panelDesc {
-            font-size: 16px; line-height: 1.6; color: #ccc; margin-bottom: 30px;
+            font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 30px;
         }
         #closeBtn {
             position: absolute; top: 20px; right: 20px;
-            background: none; border: none; color: #777;
+            background: none; border: none; color: #000;
             font-size: 24px; cursor: pointer;
         }
-        #closeBtn:hover { color: #fff; }
+        #closeBtn:hover { color: #555; }
 
         .info {
             position: absolute; bottom: 20px; left: 20px;
-            color: #fff; font-size: 13px; pointer-events: none; user-select: none;
-            background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 8px;
-            z-index: 2; text-shadow: 0 0 5px #fff;
+            color: #000; font-size: 13px; pointer-events: none; user-select: none;
+            background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px;
+            z-index: 2; 
         }
     </style>
 </head>
@@ -110,18 +109,15 @@
         const myData = {
             nodes: [
                 { id: mainNodeText, group: 'main', val: 100, desc: "Burası benim kişisel evrenim. Hoş geldin." },
-                
                 { id: 'TEKNOLOJİ', group: 'cat', val: 50, parent: mainNodeText, desc: "Kod, devreler ve silikon vadisi maceralarım." },
                 { id: 'FİZİK & BİLİM', group: 'cat', val: 50, parent: mainNodeText, desc: "Evrenin nasıl çalıştığını anlama çabam." },
                 { id: 'SANAT & TASARIM', group: 'cat', val: 50, parent: mainNodeText, desc: "Estetik, renkler ve dijital sanat." },
                 { id: 'YAŞAM', group: 'cat', val: 50, parent: mainNodeText, desc: "Hobilerim, gezilerim ve yaşam tarzım." },
-
                 { id: 'Yazılım', group: 'sub', val: 30, parent: 'TEKNOLOJİ', desc: "Backend, Frontend ve ötesi." },
                 { id: 'Robotik', group: 'sub', val: 30, parent: 'TEKNOLOJİ', desc: "Hareket eden makineler." },
                 { id: 'Python', group: 'item', val: 15, parent: 'Yazılım', desc: "Veri bilimi ve otomasyon için favori dilim." },
                 { id: 'Three.js', group: 'item', val: 15, parent: 'Yazılım', desc: "Web üzerinde 3D dünyalar yaratmak." },
                 { id: 'GitHub', group: 'item', val: 12, parent: 'Yazılım', desc: "Açık kaynak katkılarım." },
-                
                 { id: 'Arduino', group: 'item', val: 12, parent: 'Robotik' },
                 { id: 'Pixhawk', group: 'item', val: 12, parent: 'Robotik' },
                 { id: 'Jetson Xavier', group: 'item', val: 12, parent: 'Robotik' },
@@ -158,8 +154,11 @@
         let width, height;
         let particles = [];
         let particleMap = {};
-        let auraParticles = []; // Kalıcı aura parçacıkları
-        let activeNode = null; // Şu an seçili olan node
+        let auraParticles = []; 
+        let activeNode = null; 
+
+        // Mouse Sürüsü için değişkenler
+        let cursorParticles = [];
 
         let camera = { 
             x: 0, y: 0, zoom: 1, 
@@ -171,8 +170,7 @@
         function closePanel() {
             sidePanel.classList.remove('active');
             activeNode = null;
-            auraParticles = []; // Efekti temizle
-            // Kamerayı ortaya geri al
+            auraParticles = []; 
             camera.targetX = width/2;
             camera.targetY = height/2;
         }
@@ -184,11 +182,9 @@
             camera.isDragging = true;
             camera.startX = e.clientX - camera.x;
             camera.startY = e.clientY - camera.y;
-            document.body.classList.add('grabbing');
         });
         window.addEventListener('mouseup', () => {
             camera.isDragging = false;
-            document.body.classList.remove('grabbing');
         });
         window.addEventListener('mousemove', e => {
             mouse.x = e.clientX;
@@ -216,58 +212,73 @@
         }, { passive: false });
 
 
-        // --- KALICI AURA PARÇACIĞI ---
+        // --- MOUSE SÜRÜSÜ SINIFI ---
+        class CursorSwarm {
+            constructor() {
+                this.x = mouse.x;
+                this.y = mouse.y;
+                this.size = Math.random() * 2 + 1;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = 0.05 + Math.random() * 0.05;
+                this.offset = Math.random() * 20;
+            }
+
+            update() {
+                // Mouse'u takip et (Lerp - Gecikmeli takip)
+                // Hedef nokta: Mouse konumu + etrafında dönme hareketi
+                this.angle += 0.05;
+                let targetX = mouse.x + Math.cos(this.angle) * this.offset;
+                let targetY = mouse.y + Math.sin(this.angle) * this.offset;
+
+                this.x += (targetX - this.x) * 0.1;
+                this.y += (targetY - this.y) * 0.1;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Siyah parçacıklar
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // --- KALICI AURA PARÇACIĞI (Siyah versiyon) ---
         class AuraParticle {
             constructor(originX, originY, type) {
                 this.originX = originX;
                 this.originY = originY;
                 this.type = type;
-
-                // Başlangıç pozisyonu (Merkezden biraz uzakta)
                 this.angle = Math.random() * Math.PI * 2;
-                // Alanı genişlettik: 50px ile 200px arasında yayılacaklar
                 this.radius = 50 + Math.random() * 150; 
-                
                 this.x = this.originX + Math.cos(this.angle) * this.radius;
                 this.y = this.originY + Math.sin(this.angle) * this.radius;
-
-                // Dönüş hızı (Yörünge hareketi)
                 this.angularSpeed = (Math.random() - 0.5) * 0.02;
-                
-                // Nefes alma efekti (İleri geri gitme)
                 this.radialSpeed = Math.random() * 0.5;
                 this.originalRadius = this.radius;
+                this.life = 0; 
+                this.maxLife = 0.6 + Math.random() * 0.4; 
 
-                // Renk ayarları
-                this.life = 0; // Doğarken görünmez başlasın (fade-in)
-                this.maxLife = 0.6 + Math.random() * 0.4; // Maksimum opaklık
-
-                if (type.includes('SANAT') || type.includes('Görsel') || type.includes('3D')) {
-                    this.color = `hsl(${Math.random()*60 + 300}, 80%, 70%)`; // Pembe
+                // Aura renkleri (Daha pastel ve koyu)
+                if (type.includes('SANAT')) {
+                    this.color = `rgba(100, 50, 50, 0.4)`; 
                     this.size = Math.random() * 4 + 2;
-                } else if (type.includes('TEKNOLOJİ') || type.includes('Yazılım') || type.includes('Robotik')) {
-                    this.color = `hsl(${Math.random()*40 + 100}, 100%, 50%)`; // Yeşil
-                    this.size = Math.random() * 3 + 1; // Karemsi olacak draw'da
-                } else if (type.includes('FİZİK') || type.includes('Simülasyon')) {
-                    this.color = '#00ffff'; // Camgöbeği
+                } else if (type.includes('TEKNOLOJİ')) {
+                    this.color = `rgba(50, 80, 50, 0.4)`; 
+                    this.size = Math.random() * 3 + 1; 
+                } else if (type.includes('FİZİK')) {
+                    this.color = `rgba(50, 50, 80, 0.4)`;
                     this.size = Math.random() * 2 + 1;
                 } else {
-                    this.color = 'rgba(255, 220, 150, 0.9)'; // Sarımsı
+                    this.color = 'rgba(50, 50, 50, 0.4)'; 
                     this.size = Math.random() * 3 + 1;
                 }
             }
 
             update() {
-                // Fade In Efekti
                 if (this.life < this.maxLife) this.life += 0.02;
-
-                // Yörünge Hareketi
                 this.angle += this.angularSpeed;
-                
-                // Hafif Yarıçap Değişimi (Nefes alma)
                 let pulse = Math.sin(Date.now() * 0.002 + this.originalRadius) * 20;
                 let currentRadius = this.originalRadius + pulse;
-
                 this.x = this.originX + Math.cos(this.angle) * currentRadius;
                 this.y = this.originY + Math.sin(this.angle) * currentRadius;
             }
@@ -276,8 +287,7 @@
                 ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                
-                if (this.type.includes('TEKNOLOJİ') || this.type.includes('Yazılım')) {
+                if (this.type.includes('TEKNOLOJİ')) {
                     ctx.fillRect(this.x, this.y, this.size, this.size);
                 } else {
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
@@ -288,10 +298,8 @@
         }
 
         function createAura(node) {
-            auraParticles = []; // Eskileri temizle
+            auraParticles = []; 
             let type = node.group === 'cat' ? node.id : (node.parent || node.id);
-            
-            // 60 tane kalıcı parçacık oluştur
             for(let i=0; i<60; i++) {
                 auraParticles.push(new AuraParticle(node.x, node.y + node.floatOffset, type));
             }
@@ -304,7 +312,6 @@
                 this.val = data.val;
                 this.parentId = data.parent;
                 this.desc = data.desc || "Keşfedilmeyi bekleyen bir düğüm...";
-                
                 this.destX = 0; this.destY = 0;
                 this.x = 0; this.y = 0;
                 this.visible = (this.group === 'main');
@@ -350,48 +357,33 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 let fontSize = 14;
-                let color = '#fff';
-                let glowColor = 'rgba(255,255,255,0.8)'; 
+                let color = '#000000'; // DÜZ SİYAH
 
                 if (this.group === 'main') {
                     fontSize = 50; 
                     ctx.font = `900 ${fontSize}px 'Playfair Display', serif`;
-                    glowColor = 'rgba(255,200,200,0.8)'; 
                 } else if (this.group === 'cat') {
                     fontSize = 28; 
                     ctx.font = `800 ${fontSize}px 'Inter', sans-serif`; 
-                    color = '#fff';
-                    glowColor = 'rgba(100,200,255,0.8)'; 
+                    color = '#111';
                 } else if (this.group === 'sub') {
                     fontSize = 18; 
                     ctx.font = `600 ${fontSize}px 'Inter', sans-serif`; 
-                    color = '#eee';
-                    glowColor = 'rgba(200,100,255,0.6)'; 
+                    color = '#222';
                 } else {
                     fontSize = 14; 
                     ctx.font = `400 ${fontSize}px 'JetBrains Mono', monospace`; 
-                    color = '#ddd';
-                    glowColor = 'rgba(255,255,255,0.4)';
+                    color = '#333';
                 }
 
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#000000';
+                // Neon yok, Kontür var (Video üstünde okunabilirlik için)
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ffffff'; // Beyaz dış hat
                 ctx.strokeText(this.id, 0, 0);
-
-                if (this.hovered || activeNode === this) {
-                    ctx.shadowColor = glowColor;
-                    ctx.shadowBlur = 25; 
-                    color = '#fff';
-                    if(this.hovered) document.body.style.cursor = 'pointer';
-                } else {
-                    ctx.shadowColor = glowColor;
-                    ctx.shadowBlur = 10; 
-                }
 
                 ctx.fillStyle = color;
                 ctx.fillText(this.id, 0, 0);
                 
-                ctx.shadowBlur = 0;
                 ctx.restore();
             }
         }
@@ -404,6 +396,13 @@
             if(camera.x === 0 && camera.y === 0) {
                 camera.x = width / 2; camera.y = height / 2;
                 camera.targetX = camera.x; camera.targetY = camera.y;
+            }
+            
+            // Mouse sürüsü init
+            if(cursorParticles.length === 0) {
+                for(let i=0; i<12; i++) {
+                    cursorParticles.push(new CursorSwarm());
+                }
             }
 
             if (particles.length === 0) {
@@ -453,7 +452,7 @@
         }
 
         function drawOrganicLinks() {
-            ctx.globalCompositeOperation = 'destination-over';
+            ctx.globalCompositeOperation = 'source-over'; // Siyah için normal mod
             let time = Date.now() * 0.001; 
 
             particles.forEach(p => {
@@ -469,9 +468,7 @@
                 let dist = Math.hypot(endX - startX, endY - startY);
                 if (dist < 10) return;
 
-                ctx.shadowBlur = 5;
-                ctx.shadowColor = 'rgba(255,255,255,0.3)';
-                ctx.globalAlpha = p.opacity * 0.5; 
+                ctx.globalAlpha = p.opacity * 0.6; 
 
                 let dx = endX - startX;
                 let dy = endY - startY;
@@ -490,14 +487,14 @@
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
                 ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.lineWidth = 2; 
+                
+                // KOYU ÇİZGİLER
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.lineWidth = 1.5; 
                 ctx.stroke();
                 
-                ctx.shadowBlur = 0; 
                 ctx.globalAlpha = 1;
             });
-            ctx.globalCompositeOperation = 'source-over';
         }
 
         function animate() {
@@ -513,7 +510,6 @@
 
             drawOrganicLinks();
             
-            // Aura Parçacıklarını (Arkada kalsın diye önce) çiz
             for(let i = 0; i < auraParticles.length; i++) {
                 auraParticles[i].update();
                 auraParticles[i].draw();
@@ -526,24 +522,24 @@
                 if(p.hovered) isHovering = true;
             });
 
-            ctx.restore();
+            ctx.restore(); // Kamera dünyasından çık (Ekran koordinatlarına dön)
 
-            if (!isHovering && !camera.isDragging) {
-                document.body.style.cursor = 'grab';
+            // --- MOUSE SÜRÜSÜNÜ ÇİZ ---
+            // Bunu restore'dan sonra yapıyoruz ki zoom/pan'dan etkilenmesin, hep mouse ucunda olsun
+            for(let i=0; i<cursorParticles.length; i++) {
+                cursorParticles[i].update();
+                cursorParticles[i].draw();
             }
         }
 
         function handleNodeClick(node) {
-            // AÇ/KAPA MANTIĞI
             if (activeNode === node) {
-                // Zaten seçiliye bastıysa kapat
                 closePanel();
                 return;
             }
 
             activeNode = node;
 
-            // 1. Alt Dalları Aç (Big Bang)
             let children = particles.filter(p => p.parentId === node.id && !p.visible);
             if (children.length > 0) {
                 children.forEach(child => {
@@ -552,56 +548,32 @@
                 });
             }
 
-            // 2. Kalıcı Aura Oluştur
             createAura(node);
 
-            // 3. Paneli Konumlandır (Sol mu Sağ mı?)
-            // Node'un dünya koordinatına bak (node.destX)
-            // Eğer destX pozitifse (Sağda), paneli SOLA koy.
-            // Eğer destX negatifse (Solda), paneli SAĞA koy.
-            sidePanel.classList.remove('active'); // Önce bi gizle animasyon sıfırlansın
+            sidePanel.classList.remove('active'); 
             
             let panelWidth = 350;
             let targetX = 0;
 
             if (node.destX > 0) {
-                // Node sağda -> Panel SOLA
                 sidePanel.classList.remove('right');
                 sidePanel.classList.add('left');
-                
-                // Kamera Ofseti Hesaplama:
-                // Node'un ekranda sağ boşluğun ortasına gelmesi lazım.
-                // Ekranın sağ tarafındaki boşluk: width - panelWidth
-                // Bu boşluğun merkezi: panelWidth + (width - panelWidth)/2
-                // Formül: (panelWidth + width) / 2
-                
-                // Dünya'daki 0 noktası (node) nereye gelmeli?
-                // node.destX * zoom + cameraX = ScreenX
-                // Biz ScreenX'i (panelWidth + width)/2 istiyoruz.
-                // cameraX = ScreenCenter - nodeWorld
-                
                 let screenTargetX = (panelWidth + width) / 2;
                 targetX = screenTargetX - (node.destX * camera.zoom);
 
             } else {
-                // Node solda -> Panel SAĞA
                 sidePanel.classList.remove('left');
                 sidePanel.classList.add('right');
-
-                // Ekranın sol tarafındaki boşluk: width - panelWidth
-                // Bu boşluğun merkezi: (width - panelWidth) / 2
                 let screenTargetX = (width - panelWidth) / 2;
                 targetX = screenTargetX - (node.destX * camera.zoom);
             }
 
-            // Paneli aç
             setTimeout(() => {
                 panelTitle.innerText = node.id;
                 panelDesc.innerText = node.desc;
                 sidePanel.classList.add('active');
             }, 50);
 
-            // Kamerayı yeni hedefe kaydır
             camera.targetX = targetX;
             camera.targetY = (height / 2) - (node.destY * camera.zoom);
         }
@@ -613,7 +585,6 @@
             if(e.target.closest('#sidePanel')) return;
 
             if (!camera.isDragging) {
-                // Önce tıklananı bul
                 let clickedNode = null;
                 for (let i = particles.length - 1; i >= 0; i--) {
                     if (particles[i].visible && particles[i].hovered) {
@@ -625,7 +596,6 @@
                 if (clickedNode) {
                     handleNodeClick(clickedNode);
                 } else {
-                    // Boşluğa tıklarsa paneli kapat
                     closePanel();
                 }
             }
