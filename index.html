@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mind Map v3</title>
+    <title>Mind Map v4</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,12 +12,11 @@
             background-color: transparent;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            cursor: default; /* Mouse artık görünür */
+            cursor: default;
             touch-action: none; 
             -webkit-user-select: none;
         }
 
-        /* VİDEO AYARLARI */
         #bgVideo {
             position: fixed;
             right: 0; bottom: 0;
@@ -34,7 +33,7 @@
             position: relative; z-index: 1; 
         }
 
-        /* --- YAN BİLGİ PANELİ (Sadece Masaüstü) --- */
+        /* --- MASAÜSTÜ PANELİ --- */
         #sidePanel {
             position: fixed;
             top: 0;
@@ -78,14 +77,9 @@
         }
         #closeBtn:hover { color: #555; }
 
-        /* --- MOBİL DÜZENLEMELERİ --- */
+        /* --- MOBİL GİZLEME --- */
         @media (max-width: 768px) {
-            /* Paneli mobilde tamamen gizle */
-            #sidePanel {
-                display: none !important;
-            }
-            
-            /* Bilgi kutusunu mobilde daha belirgin yap */
+            #sidePanel { display: none !important; }
             .info {
                 width: 90%;
                 text-align: center;
@@ -175,22 +169,30 @@
         const panelDesc = document.getElementById('panelDesc');
         const closeBtn = document.getElementById('closeBtn');
 
-        let width, height;
+        // Genişlik ve Yüksekliği baştan hesapla
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
         let particles = [];
         let particleMap = {};
         let auraParticles = []; 
         let activeNode = null; 
         let cursorParticles = [];
 
+        // KAMERA BAŞLANGIÇ POZİSYONUNU DOĞRUDAN MERKEZE AYARLA
         let camera = { 
-            x: 0, y: 0, zoom: isMobile ? 0.6 : 1, // Mobilde biraz daha uzak başlasın
-            targetX: 0, targetY: 0, 
+            x: width / 2, // 0 yerine direkt merkez
+            y: height / 2, // 0 yerine direkt merkez
+            zoom: isMobile ? 0.6 : 1,
+            targetX: width / 2, 
+            targetY: height / 2, 
             isDragging: false, startX: 0, startY: 0 
         };
         
         let mouse = { x: -100, y: -100, worldX: 0, worldY: 0 };
         
-        // --- DOKUNMATİK & MOUSE OLAYLARI ---
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -229,26 +231,28 @@
             }
         });
 
-        // Mouse Events
-        window.addEventListener('mousedown', e => {
-            if(e.target.closest('#sidePanel')) return;
-            camera.isDragging = true;
-            camera.startX = e.clientX - camera.x;
-            camera.startY = e.clientY - camera.y;
-        });
-        window.addEventListener('mouseup', () => { camera.isDragging = false; });
-        window.addEventListener('mousemove', e => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            if (camera.isDragging) {
-                camera.x = e.clientX - camera.startX;
-                camera.y = e.clientY - camera.startY;
-                camera.targetX = camera.x;
-                camera.targetY = camera.y;
-            }
-            mouse.worldX = (mouse.x - camera.x) / camera.zoom;
-            mouse.worldY = (mouse.y - camera.y) / camera.zoom;
-        });
+        if (!isMobile) {
+            window.addEventListener('mousedown', e => {
+                if(e.target.closest('#sidePanel')) return;
+                camera.isDragging = true;
+                camera.startX = e.clientX - camera.x;
+                camera.startY = e.clientY - camera.y;
+            });
+            window.addEventListener('mouseup', () => { camera.isDragging = false; });
+            window.addEventListener('mousemove', e => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+                if (camera.isDragging) {
+                    camera.x = e.clientX - camera.startX;
+                    camera.y = e.clientY - camera.startY;
+                    camera.targetX = camera.x;
+                    camera.targetY = camera.y;
+                }
+                mouse.worldX = (mouse.x - camera.x) / camera.zoom;
+                mouse.worldY = (mouse.y - camera.y) / camera.zoom;
+            });
+        }
+        
         window.addEventListener('wheel', e => {
             e.preventDefault();
             const s = 0.001;
@@ -265,16 +269,16 @@
 
         function closePanel() {
             sidePanel.classList.remove('active');
-            infoBox.innerText = "exploration made easy"; // Reset info text
+            infoBox.innerText = "exploration made easy";
             activeNode = null;
             auraParticles = []; 
+            // Reset to Center
             camera.targetX = width/2;
             camera.targetY = height/2;
         }
 
         closeBtn.addEventListener('click', closePanel);
 
-        // --- MOUSE SÜRÜSÜ (Swarm) ---
         class CursorSwarm {
             constructor() {
                 this.x = mouse.x; this.y = mouse.y;
@@ -297,7 +301,6 @@
             }
         }
 
-        // --- AURA PARÇACIĞI ---
         class AuraParticle {
             constructor(originX, originY, type) {
                 this.originX = originX; this.originY = originY; this.type = type;
@@ -412,14 +415,12 @@
         }
 
         function calculateLayout() {
-            width = window.innerWidth; height = window.innerHeight;
-            canvas.width = width; canvas.height = height;
-            
-            if(camera.x === 0 && camera.y === 0) {
-                camera.x = width / 2; camera.y = height / 2;
-                camera.targetX = camera.x; camera.targetY = camera.y;
-            }
-            
+            // Layout hesaplanırken genişlik yüksekliği güncelle
+            width = window.innerWidth; 
+            height = window.innerHeight;
+            canvas.width = width; 
+            canvas.height = height;
+
             if(!isMobile && cursorParticles.length === 0) {
                 for(let i=0; i<12; i++) cursorParticles.push(new CursorSwarm());
             }
@@ -526,14 +527,11 @@
 
             createAura(node);
             
-            // Eğer mobil ise sadece info kutusunu güncelle, panel açma
             if (isMobile) {
                 infoBox.innerText = node.desc;
-                // Mobilde node'u ortala
                 camera.targetX = (width / 2) - (node.destX * camera.zoom);
                 camera.targetY = (height / 2) - (node.destY * camera.zoom);
             } else {
-                // Masaüstü ise panel aç
                 sidePanel.classList.remove('active'); 
                 let panelWidth = 350;
                 let targetX = 0;
@@ -576,8 +574,31 @@
             }
         }
 
-        window.onload = () => { calculateLayout(); animate(); };
-        window.addEventListener('resize', calculateLayout);
+        window.onload = () => { 
+            // Sayfa yüklendiğinde boyutları güncelle ve kamerayı ortala
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Kamerayı zorla merkeze al
+            camera.x = width / 2;
+            camera.y = height / 2;
+            camera.targetX = width / 2;
+            camera.targetY = height / 2;
+            
+            calculateLayout(); 
+            animate(); 
+        };
+        
+        window.addEventListener('resize', () => {
+             calculateLayout();
+             // Resize olunca da kamerayı ortala (aktif node yoksa)
+             if(!activeNode) {
+                camera.targetX = width/2;
+                camera.targetY = height/2;
+             }
+        });
 
         if (!isMobile) {
             window.addEventListener('click', (e) => {
