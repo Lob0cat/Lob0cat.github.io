@@ -1,0 +1,53 @@
+@font-face {
+  font-family: Inter;
+  src: url("../fonts/Inter-Regular.woff2") format("woff2");
+}
+
+body {
+  font-family: Inter, sans-serif;
+  background: #0e0e0e;
+  color: #eaeaea;
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 40px;
+}
+
+.sidebar a {
+  display: block;
+  color: #777;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.sidebar a:hover {
+  color: #fff;
+}
+
+#content {
+  flex: 1;
+  padding: 60px;
+  max-width: 900px;
+}
+
+.block {
+  margin-bottom: 80px;
+}
+
+[data-block="gallery"] {
+  position: relative;
+  height: 400px;
+}
+
+[data-block="gallery"] img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s;
+}
+
+[data-block="gallery"] img.active {
+  opacity: 1;
+}
