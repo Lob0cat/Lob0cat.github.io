@@ -1,53 +1,120 @@
-@font-face {
-  font-family: Inter;
-  src: url("../fonts/Inter-Regular.woff2") format("woff2");
-}
-
+/* --- GENEL AYARLAR --- */
 body {
-  font-family: Inter, sans-serif;
-  background: #0e0e0e;
-  color: #eaeaea;
+  margin: 0;
+  overflow: hidden; /* Sayfa kaymasın, sadece panel kaysın */
+  background-color: #050505; /* Çok koyu gri (Siyah değil) */
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Link Reset */
+a { text-decoration: none; color: inherit; transition: 0.3s; }
+
+/* --- KATMAN 1: 3D CANVAS --- */
+#webgl-background {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  /* Geçici olarak arkada bir şey olduğunu gör diye: */
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+}
+
+/* --- KATMAN 2: YÜZEN MENÜ (SOL) --- */
+.floating-ui {
+  position: fixed;
+  top: 40px;
+  left: 60px;
+  z-index: 10;
+  mix-blend-mode: difference; /* Arka plan ne olursa olsun okunur yap */
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.main-nav {
   display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.sidebar {
-  width: 200px;
-  padding: 40px;
-}
-
-.sidebar a {
-  display: block;
-  color: #777;
-  text-decoration: none;
-  margin-bottom: 10px;
-}
-
-.sidebar a:hover {
-  color: #fff;
-}
-
-#content {
-  flex: 1;
-  padding: 60px;
-  max-width: 900px;
-}
-
-.block {
-  margin-bottom: 80px;
-}
-
-[data-block="gallery"] {
+.nav-link {
+  font-size: 1.1rem;
+  opacity: 0.6;
   position: relative;
-  height: 400px;
 }
 
-[data-block="gallery"] img {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.8s;
-}
-
-[data-block="gallery"] img.active {
+.nav-link:hover {
   opacity: 1;
+  padding-left: 10px; /* Hover'da hafif sağa kayma */
+}
+
+/* Aktif linkin yanına nokta koyma (Opsiyonel JS ile tetiklenir) */
+.nav-link.active::before {
+  content: '';
+  position: absolute; left: -15px; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px; background: #fff; border-radius: 50%;
+}
+
+
+/* --- KATMAN 3: İÇERİK PANELİ (SAĞDAN KAYAN) --- */
+#content-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50vw; /* Ekranın yarısını kapla (Gregory Stili) */
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.95); /* Arkası çok az görünsün */
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 20;
+  
+  /* Animasyon Başlangıç Durumu (Ekran Dışı) */
+  transform: translateX(100%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Çok yumuşak "Apple" geçişi */
+  
+  box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+}
+
+/* Bu class eklendiğinde panel açılır */
+#content-panel.open {
+  transform: translateX(0);
+}
+
+/* İçerik Kaydırma Alanı */
+#content-inner {
+  height: 100%;
+  overflow-y: auto; /* Sadece panelin içi scroll olsun */
+  padding: 80px 60px;
+  box-sizing: border-box;
+}
+
+/* Kapat Butonu */
+#close-btn {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+#close-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* --- Responsive (Mobil) --- */
+@media (max-width: 768px) {
+  #content-panel { width: 100vw; /* Mobilde tam ekran */ }
+  .floating-ui { top: 20px; left: 20px; }
 }
