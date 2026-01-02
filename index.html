@@ -2,22 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your Name</title>
-
-  <link rel="preload" href="fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/main.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <aside class="sidebar">
-    <a href="#focus">Focus</a>
-    <a href="#orage">Orage</a>
-    <a href="#about">About</a>
-  </aside>
+  <canvas id="webgl-background"></canvas>
 
-  <main id="content"></main>
+  <header class="floating-ui">
+    <div class="logo">SENİN İSMİN</div>
+    <nav class="main-nav">
+      <a href="#focus" class="nav-link">Focus</a>
+      <a href="#orage" class="nav-link">Orage</a>
+      <a href="#about" class="nav-link">About</a>
+    </nav>
+  </header>
+
+  <main id="content-panel">
+    <button id="close-btn" onclick="location.hash=''">✕ KAPAT</button>
+    <div id="content-inner">
+      </div>
+  </main>
 
   <script type="module" src="js/app.js"></script>
 </body>
