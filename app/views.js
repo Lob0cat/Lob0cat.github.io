@@ -223,27 +223,45 @@ export function openCategory(categoryId) {
 }
 
 // ============= MOBİL SCROLL SPY (ORTADAN TETİKLENİR) =============
+// ============= MOBİL SCROLL SPY (GARANTİLİ SEÇİM) =============
 function handleMobileScrollSpy() {
+  const leftZone = document.querySelector('.zone-left');
+  if (!leftZone) return;
+
   const wrappers = document.querySelectorAll('.mobile-project-wrapper');
   let activeIndex = 0;
   
-  // === GÜNCELLEME: Tetikleyici Tam Ortada (0.5) ===
-  const triggerLine = window.innerHeight * 0.50;
-  
-  wrappers.forEach(wrapper => {
-      const rect = wrapper.getBoundingClientRect();
-      // Eleman ortadaki çizgiyi geçtiyse (yukarı doğru) aktif yap
-      if(rect.top < triggerLine) {
-          activeIndex = parseInt(wrapper.dataset.index);
-      }
-  });
+  // 1. SCROLL POZİSYONUNU AL
+  const scrollTop = leftZone.scrollTop;
+  const scrollHeight = leftZone.scrollHeight;
+  const clientHeight = leftZone.clientHeight;
 
+  // 2. "EN DİPTE MİYİZ?" KONTROLÜ
+  // Eğer scroll sonuna 50px kadar yaklaştıysak, zorla sonuncuyu seç.
+  if (scrollTop + clientHeight >= scrollHeight - 50) {
+    activeIndex = wrappers.length - 1;
+  } 
+  else {
+    // 3. DEĞİLSE NORMAL HESAP (ORTAYI GEÇENİ SEÇ)
+    const triggerLine = window.innerHeight * 0.50;
+    
+    wrappers.forEach(wrapper => {
+        const rect = wrapper.getBoundingClientRect();
+        // Resmin tepesi orta çizginin üzerine çıktıysa aktiftir
+        if(rect.top < triggerLine) {
+            activeIndex = parseInt(wrapper.dataset.index);
+        }
+    });
+  }
+
+  // 4. MENU GÜNCELLEME
   const navItems = document.querySelectorAll('#project-titles-list .title-item');
   navItems.forEach((item, i) => {
       if(i === activeIndex) {
           if (!item.classList.contains('active')) {
              item.classList.add('active');
-             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+             // Menüdeki ismi de hafifçe kaydırarak ortala/görünür yap
+             item.scrollIntoView({ behavior: 'auto', block: 'nearest' });
           }
       } else {
           item.classList.remove('active');
