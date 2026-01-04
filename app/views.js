@@ -25,17 +25,27 @@ export async function initWorks() {
   showCategories();
   
   if (isMobile()) {
-    document.querySelector('.zone-left').addEventListener('scroll', handleMobileScrollSpy);
+    const leftZone = document.querySelector('.zone-left');
+    if (leftZone) leftZone.addEventListener('scroll', handleMobileScrollSpy);
   } else {
     viewWorks.addEventListener('scroll', handleDesktopScrollSpy);
   }
+  
+  window.addEventListener('resize', () => {
+     // İsteğe bağlı: window.location.reload(); 
+  });
 }
 
 function resetListScroll() {
   const listContainer = document.querySelector('.sticky-wrapper');
   if (listContainer) listContainer.scrollTop = 0;
-  if (isMobile()) document.querySelector('.zone-left').scrollTop = 0;
-  else viewWorks.scrollTop = 0;
+  
+  if (isMobile()) {
+    const leftZone = document.querySelector('.zone-left');
+    if (leftZone) leftZone.scrollTop = 0;
+  } else {
+    viewWorks.scrollTop = 0;
+  }
 }
 
 // ============= RENDER MOTORU =============
@@ -46,11 +56,14 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
   galleryLeft.innerHTML = '';
   galleryRight.innerHTML = '';
 
-  // --- MOBİL İÇİN GERİ BUTONU (SOL ÜSTE EKLE) ---
+  // Mobil Geri Butonu
   if (type === 'projects' && isMobile()) {
     const mobileBackBtn = document.createElement('div');
-    mobileBackBtn.className = 'mobile-back-btn'; // CSS'de stil verdik
+    mobileBackBtn.className = 'mobile-back-btn'; 
     mobileBackBtn.innerHTML = '← Back';
+    mobileBackBtn.style.marginBottom = '2rem';
+    mobileBackBtn.style.fontWeight = '700';
+    mobileBackBtn.style.cursor = 'pointer';
     mobileBackBtn.onclick = (e) => { 
         e.stopPropagation(); 
         window.location.hash = 'works'; 
@@ -58,7 +71,7 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     galleryLeft.appendChild(mobileBackBtn);
   }
 
-  // --- DESKTOP İÇİN GERİ BUTONU (MENÜYE EKLE) ---
+  // Desktop Geri Butonu
   if (type === 'projects' && !isMobile()) {
     const backBtn = document.createElement('div');
     backBtn.className = 'back-btn';
@@ -67,7 +80,7 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titlesList.appendChild(backBtn);
   }
 
-  // Desktop Başlık
+  // Başlık
   if (headerTitle && !isMobile()) {
     const header = document.createElement('div');
     header.className = 'list-section-header';
@@ -76,12 +89,11 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titlesList.appendChild(header);
   }
 
-  // LİSTELEME
   items.forEach((item, i) => {
-    // 1. Menü Öğesi (Sağ Alt)
     const titleItem = document.createElement('div');
     titleItem.className = `title-item ${i===0 ? 'active' : ''}`;
     titleItem.textContent = item.title;
+    
     const goLink = () => {
       if (type === 'categories') window.location.hash = `works/${item.id}`;
       else window.location.hash = `works/${categoryId}/${item.slug}`;
@@ -90,16 +102,16 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titleItem.id = `nav-${type}-${i}`;
     titlesList.appendChild(titleItem);
 
-    // 2. Resim Alanı
     if (isMobile()) {
        renderMobileImages(item, i, type, categoryId);
     } else {
        renderDesktopImages(item, i, type, categoryId);
     }
   });
+  
+  if(isMobile()) setTimeout(handleMobileScrollSpy, 100);
 }
 
-// --- MOBİL RESİM RENDER (SADECE NUMARA + RESİM) ---
 function renderMobileImages(item, index, type, categoryId) {
   const container = document.getElementById('gallery-left');
   const num = (index + 1).toString().padStart(2, '0');
@@ -108,10 +120,9 @@ function renderMobileImages(item, index, type, categoryId) {
   wrapper.className = 'mobile-project-wrapper';
   wrapper.dataset.index = index;
   
-  // DÜZELTME: Sadece Numara (İsim Yok)
   const label = document.createElement('div');
   label.className = 'project-number';
-  label.textContent = num; // Sadece "01", "02" vs.
+  label.textContent = num; 
   wrapper.appendChild(label);
 
   const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
@@ -133,7 +144,6 @@ function renderMobileImages(item, index, type, categoryId) {
   container.appendChild(wrapper);
 }
 
-// --- DESKTOP RESİM RENDER ---
 function renderDesktopImages(item, index, type, categoryId) {
   const num = (index + 1).toString().padStart(2, '0');
   const numEl = document.createElement('div');
@@ -154,7 +164,6 @@ function renderDesktopImages(item, index, type, categoryId) {
     img.className = 'work-img';
     img.loading = 'lazy';
     img.src = `${basePath}/${j}.${ext}`;
-    
     img.onclick = () => {
        if (type === 'categories') window.location.hash = `works/${item.id}`;
        else window.location.hash = `works/${categoryId}/${item.slug}`;
@@ -166,7 +175,6 @@ function renderDesktopImages(item, index, type, categoryId) {
   }
 }
 
-// ============= ANA MENÜ =============
 export function showCategories() {
   currentCategory = null;
   resetListScroll();
@@ -202,7 +210,6 @@ export function showCategories() {
   });
 }
 
-// ============= ALT MENÜ =============
 export function openCategory(categoryId) {
   if (currentCategory === categoryId) return;
   currentCategory = categoryId;
@@ -215,14 +222,17 @@ export function openCategory(categoryId) {
   renderList(categoryData.projects, 'projects', categoryId, categoryData.title);
 }
 
-// ============= MOBİL SCROLL SPY =============
+// ============= MOBİL SCROLL SPY (ORTADAN TETİKLENİR) =============
 function handleMobileScrollSpy() {
   const wrappers = document.querySelectorAll('.mobile-project-wrapper');
   let activeIndex = 0;
-  const triggerLine = window.innerHeight * 0.30;
+  
+  // === GÜNCELLEME: Tetikleyici Tam Ortada (0.5) ===
+  const triggerLine = window.innerHeight * 0.50;
   
   wrappers.forEach(wrapper => {
       const rect = wrapper.getBoundingClientRect();
+      // Eleman ortadaki çizgiyi geçtiyse (yukarı doğru) aktif yap
       if(rect.top < triggerLine) {
           activeIndex = parseInt(wrapper.dataset.index);
       }
@@ -231,15 +241,16 @@ function handleMobileScrollSpy() {
   const navItems = document.querySelectorAll('#project-titles-list .title-item');
   navItems.forEach((item, i) => {
       if(i === activeIndex) {
-          item.classList.add('active');
-          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          if (!item.classList.contains('active')) {
+             item.classList.add('active');
+             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
       } else {
           item.classList.remove('active');
       }
   });
 }
 
-// ============= DESKTOP SCROLL SPY =============
 function handleDesktopScrollSpy() {
   if (viewWorks.classList.contains('locked')) return;
   const markers = document.querySelectorAll('.project-number');
@@ -287,7 +298,6 @@ export async function openProjectDetail(categoryId, projectSlug) {
     const html = await res.text();
     detailPanel.innerHTML = html;
     
-    // Mobilde Detay İçin Geri Butonu
     if(isMobile()) {
        const closeBtn = document.createElement('div');
        closeBtn.innerHTML = '← Back';
@@ -309,6 +319,7 @@ export function closeProjectDetail() {
   unmount();
   document.querySelector('.zone-right').classList.remove('faded');
   viewWorks.classList.remove('locked');
+  
   if (isMobile()) handleMobileScrollSpy();
   else handleDesktopScrollSpy();
 }
@@ -327,7 +338,8 @@ export async function loadStaticView(viewName) {
 
 export function destroyWorks() { 
   if(isMobile()) {
-      document.querySelector('.zone-left')?.removeEventListener('scroll', handleMobileScrollSpy);
+      const leftZone = document.querySelector('.zone-left');
+      if (leftZone) leftZone.removeEventListener('scroll', handleMobileScrollSpy);
   } else {
       viewWorks.removeEventListener('scroll', handleDesktopScrollSpy);
   }
