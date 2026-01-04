@@ -1,0 +1,169 @@
+{
+  "sections": [
+    {
+      "title": "IDEAS",
+      "description": "Mental Models & Theory",
+      "categories": [
+        {
+          "id": "mathematics",
+          "imageCount": 0,
+          "title": "Mathematics",
+          "projects": [
+            { "slug": "analysis", "imageCount": 0, "title": "Analysis & Calculus" },
+            { "slug": "linear-algebra", "imageCount": 0, "title": "Linear Algebra" },
+            { "slug": "modeling", "imageCount": 0, "title": "Mathematical Modeling" }
+          ]
+        },
+        {
+          "id": "physics",
+          "imageCount": 0,
+          "title": "Physics",
+          "projects": [
+            { "slug": "mechanics", "imageCount": 0, "title": "Classical Mechanics" },
+            { "slug": "electromagnetism", "imageCount": 0, "title": "Electromagnetism" },
+            { "slug": "intuition", "imageCount": 0, "title": "Physical Intuition" }
+          ]
+        },
+        {
+          "id": "systems",
+          "imageCount": 0,
+          "title": "Systems Thinking",
+          "projects": [
+            { "slug": "dynamical", "imageCount": 0, "title": "Dynamical Systems" },
+            { "slug": "control-theory", "imageCount": 0, "title": "Control Theory" },
+            { "slug": "complexity", "imageCount": 0, "title": "Complexity & Emergence" }
+          ]
+        },
+        {
+          "id": "learning",
+          "imageCount": 0,
+          "title": "Learning Process",
+          "projects": [
+            { "slug": "understanding", "imageCount": 0, "title": "How Understanding Forms" },
+            { "slug": "intuition-limits", "imageCount": 0, "title": "Limits of Intuition" }
+          ]
+        },
+        {
+          "id": "philosophy",
+          "imageCount": 0,
+          "title": "Philosophy of Practice",
+          "projects": [
+            { "slug": "knowing", "imageCount": 0, "title": "What means to Know" },
+            { "slug": "precision", "imageCount": 0, "title": "Precision vs Usefulness" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "WORKS",
+      "description": "Engineering & Implementation",
+      "categories": [
+        {
+          "id": "robotics",
+          "imageCount": 0,
+          "title": "Robotics",
+          "projects": [
+            { "slug": "ros-systems", "imageCount": 0, "title": "ROS-based Systems" },
+            { "slug": "uav", "imageCount": 0, "title": "UAV & Drones" },
+            { "slug": "control-pipelines", "imageCount": 0, "title": "Control Pipelines" }
+          ]
+        },
+        {
+          "id": "vision",
+          "imageCount": 0,
+          "title": "Computer Vision",
+          "projects": [
+            { "slug": "processing", "imageCount": 0, "title": "Image Processing" },
+            { "slug": "object-detection", "imageCount": 0, "title": "Object Detection" },
+            { "slug": "depth", "imageCount": 0, "title": "Depth Perception" }
+          ]
+        },
+        {
+          "id": "simulation",
+          "imageCount": 0,
+          "title": "Simulation",
+          "projects": [
+            { "slug": "physics-sims", "imageCount": 0, "title": "Physics Simulators" },
+            { "slug": "model-validation", "imageCount": 0, "title": "Model Validation" }
+          ]
+        },
+        {
+          "id": "software",
+          "imageCount": 0,
+          "title": "Software Systems",
+          "projects": [
+            { "slug": "linux-dev", "imageCount": 0, "title": "Linux Development" },
+            { "slug": "docker", "imageCount": 0, "title": "Docker & Containers" }
+          ]
+        },
+        {
+          "id": "embedded",
+          "imageCount": 0,
+          "title": "Embedded & Hardware",
+          "projects": [
+            { "slug": "jetson", "imageCount": 0, "title": "Jetson Platforms" },
+            { "slug": "microcontrollers", "imageCount": 0, "title": "Microcontrollers" }
+          ]
+        },
+        {
+          "id": "training",
+          "imageCount": 0,
+          "title": "Physical Training",
+          "projects": [
+            { "slug": "calisthenics", "imageCount": 0, "title": "Calisthenics" },
+            { "slug": "movement", "imageCount": 0, "title": "Movement Analysis" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "WRITINGS",
+      "description": "Expression & Narrative",
+      "categories": [
+        {
+          "id": "technical-writing",
+          "imageCount": 0,
+          "title": "Technical Writing",
+          "projects": [
+            { "slug": "docs", "imageCount": 0, "title": "Documentation" },
+            { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns" }
+          ]
+        },
+        {
+          "id": "conceptual",
+          "imageCount": 0,
+          "title": "Conceptual Writing",
+          "projects": [
+            { "slug": "simplifying", "imageCount": 0, "title": "Simplifying Complexity" }
+          ]
+        },
+        {
+          "id": "reflective",
+          "imageCount": 0,
+          "title": "Reflective Writing",
+          "projects": [
+            { "slug": "processes", "imageCount": 0, "title": "Learning Processes" },
+            { "slug": "failure", "imageCount": 0, "title": "Failure & Revision" }
+          ]
+        },
+        {
+          "id": "languages",
+          "imageCount": 0,
+          "title": "Language Practice",
+          "projects": [
+            { "slug": "english", "imageCount": 0, "title": "Technical English" },
+            { "slug": "french", "imageCount": 0, "title": "French Learning" }
+          ]
+        },
+        {
+          "id": "essays",
+          "imageCount": 0,
+          "title": "Personal Essays",
+          "projects": [
+            { "slug": "discipline", "imageCount": 0, "title": "Discipline & Consistency" }
+          ]
+        }
+      ]
+    }
+  ]
+}

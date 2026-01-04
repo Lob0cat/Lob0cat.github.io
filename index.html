@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mehmet Güner - mind mapper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header id="main-header" class="state-works">
+    <nav class="nav-track">
+      <a href="#works" class="nav-item active" data-view="works">Works,</a>
+      <a href="#about" class="nav-item" data-view="about">About,</a>
+      <a href="#contact" class="nav-item" data-view="contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="app">
+    
+    <div class="site-footer">Mehmet Güner</div>
+
+    <section id="view-works" class="view active">
+      <div class="zone-left" id="gallery-left"></div>
+      
+      <div class="zone-middle">
+        <div class="sticky-wrapper">
+          <div id="project-titles-list"></div>
+        </div>
+      </div>
+      
+      <div class="zone-right">
+        <div id="gallery-right" style="display:contents"></div>
+      </div>
+    </section>
+
+    <div id="project-detail-panel"></div>
+
+    <section id="view-about" class="view">
+      <div id="about-content"></div>
+    </section>
+
+    <section id="view-contact" class="view">
+      <div id="contact-content"></div>
+    </section>
+
+  </main>
+
+  <script type="module" src="app/router.js"></script>
+</body>
+</html>
