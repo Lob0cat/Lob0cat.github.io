@@ -301,12 +301,9 @@ body {
 .view { opacity: 0; visibility: hidden; transition: opacity 0.5s; }
 .view.active { opacity: 1; visibility: visible; }
 
-/* =========================================
-   MOBİL UYUMLULUK (ORTALAMA İÇİN GÜNCELLENDİ)
-   ========================================= */
 @media (max-width: 768px) {
 
-  /* Header */
+  /* 1. HEADER & İSİM */
   #main-header {
     height: auto;
     width: auto;
@@ -317,14 +314,13 @@ body {
     padding: 0;
     justify-content: flex-end;
     background: transparent;
-    pointer-events: auto; 
+    pointer-events: auto;
   }
   
   .nav-track { gap: 15px; }
   .nav-item { font-size: 0.85rem !important; opacity: 0.5; font-weight: 600; }
   .nav-item.active { opacity: 1; letter-spacing: normal; font-size: 0.85rem !important; }
 
-  /* İsim */
   .site-footer {
     top: 1.5rem;
     left: 1.5rem;
@@ -335,18 +331,22 @@ body {
     display: block !important;
   }
 
-  /* Ana Yapı */
+  /* 2. ANA YAPI (WORKS) - FIX BURADA */
   #view-works {
     display: flex;
     flex-direction: row;
     padding: 0;
-    /* Header payını buradan siliyoruz çünkü zone-left'e dev padding vericez */
-    padding-top: 0; 
-    height: 100vh;
-    overflow: hidden;
+    padding-top: 0;
+    /* vh yerine dvh kullanıyoruz. Tarayıcı çubuklarını hesaba katar. */
+    height: 100dvh; 
+    height: 100vh; /* Fallback */
+    overflow: hidden; /* Dışarı taşmayı engelle */
+    
+    /* Android'de "pull-to-refresh" yaylanmasını engeller */
+    overscroll-behavior: none; 
   }
 
-  /* SOL ALAN (Resimler) - GÜNCELLEME BURADA */
+  /* SOL ALAN (Resimler) */
   .zone-left {
     display: flex;
     flex-direction: column;
@@ -356,20 +356,24 @@ body {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     
-    /* === KRİTİK GÜNCELLEME: START FROM MIDDLE === */
-    /* Ekranın yarısı kadar boşluk bırak ki ilk resim ortadan başlasın */
+    /* Listeyi ortalamak için boşluklar */
     padding-top: 45vh; 
-    /* Son resim de ortaya kadar çıkabilsin */
     padding-bottom: 45vh; 
     
     scrollbar-width: none;
+    
+    /* Scroll performansını artırır */
+    -webkit-overflow-scrolling: touch; 
+    overscroll-behavior-y: contain;
   }
   .zone-left::-webkit-scrollbar { display: none; }
 
   /* MENÜ (SAĞ ALT) */
   .zone-middle {
     position: fixed !important; 
-    bottom: 2rem;
+    bottom: 2rem; /* Alttan biraz pay bırak */
+    /* Samsung Internet'te alt bar varsa 2rem yukarıda kalsın */
+    bottom: calc(2rem + env(safe-area-inset-bottom)); 
     right: 1.5rem;
     top: auto; left: auto;
     width: auto;
@@ -391,6 +395,7 @@ body {
     -webkit-mask-image: none;
   }
 
+  /* Diğer stiller aynen kalabilir */
   #project-titles-list {
     display: flex;
     flex-direction: column;
@@ -451,32 +456,17 @@ body {
 
   /* ABOUT DÜZELTME */
   #view-about {
+    /* dvh kullanımı önemli */
+    height: 100dvh; 
     padding: 100px 1.5rem 2rem 1.5rem !important;
     overflow-y: auto;
     display: block;
+    -webkit-overflow-scrolling: touch;
   }
-  #view-about .about-container {
-    padding: 0 !important;
-    width: 100% !important;
-    display: block !important;
-  }
-  #view-about .about-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 3rem !important;
-    grid-template-columns: 1fr !important;
-  }
-  #view-about .col-bio, 
-  #view-about .col-clients, 
-  #view-about .col-awards {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
+  /* ... about container stilleri ... */
+  #view-about .about-container { padding: 0 !important; width: 100% !important; display: block !important; }
+  #view-about .about-grid { display: flex !important; flex-direction: column !important; gap: 3rem !important; grid-template-columns: 1fr !important; }
+  #view-about .col-bio, #view-about .col-clients, #view-about .col-awards { width: 100% !important; max-width: 100% !important; }
   .col-bio p { font-size: 1.1rem; line-height: 1.5; }
-  .about-footer-row {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 3rem;
-    gap: 1rem;
-  }
+  .about-footer-row { flex-direction: column; align-items: flex-start; margin-top: 3rem; gap: 1rem; padding-bottom: 2rem; }
 }
