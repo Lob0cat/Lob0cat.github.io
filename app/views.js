@@ -14,9 +14,6 @@ const staticContainers = {
   contact: document.getElementById('contact-content')
 };
 
-// MOBİL KONTROLÜ
-const isMobile = () => window.innerWidth <= 768;
-
 export async function initWorks() {
   const res = await fetch('projects.json');
   const data = await res.json();
@@ -27,26 +24,29 @@ export async function initWorks() {
   viewWorks.addEventListener('scroll', handleScrollSpy);
 }
 
+// ============= SCROLL RESET (Zıplamayı Önler) =============
 function resetListScroll() {
   const listContainer = document.querySelector('.sticky-wrapper');
-  if (listContainer) listContainer.scrollTop = 0;
-  // Mobilde ana container da sıfırlanmalı
-  if (isMobile()) window.scrollTo(0, 0);
+  if (listContainer) {
+    listContainer.scrollTop = 0;
+  }
 }
 
 // ============= ORTAK RENDER MOTORU =============
 function renderList(items, type, categoryId = null, headerTitle = null) {
+  // 1. ÖNCE SCROLL SIFIRLA
   resetListScroll();
 
+  // 2. TEMİZLİK
   titlesList.innerHTML = '';
   document.getElementById('gallery-left').innerHTML = '';
   document.getElementById('gallery-right').innerHTML = '';
 
-  // GERİ BUTONU
+  // 3. GERİ BUTONU (Sadece Proje Listesi ise)
   if (type === 'projects') {
     const backBtn = document.createElement('div');
     backBtn.className = 'back-btn';
-    backBtn.innerHTML = isMobile() ? '← Back' : '← Main Menu'; // Mobilde kısa text
+    backBtn.innerHTML = '← Main Menu';
     backBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -55,7 +55,7 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titlesList.appendChild(backBtn);
   }
 
-  // BAŞLIK
+  // 4. BAŞLIK EKLE (Hizalama için gerekli)
   if (headerTitle) {
     const header = document.createElement('div');
     header.className = 'list-section-header';
@@ -64,43 +64,25 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titlesList.appendChild(header);
   }
 
-  // LİSTE ELEMANLARI
+  // 5. LİSTE ELEMANLARI
   items.forEach((item, i) => {
-    // 1. Başlık Kutusu
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'mobile-card'; // Mobil için kapsayıcı
-
-    // 2. Başlık Metni
     const titleItem = document.createElement('div');
     const isActive = (type === 'projects' && i === 0);
     titleItem.className = `title-item ${isActive ? 'active' : ''}`;
     titleItem.textContent = item.title;
     
-    const goLink = () => {
-      if (type === 'categories') window.location.hash = `works/${item.id}`;
-      else window.location.hash = `works/${categoryId}/${item.slug}`;
-    };
-
-    titleItem.onclick = goLink;
-    titleContainer.appendChild(titleItem);
-
-    // 3. MOBİL İSE: Resimleri hemen buraya ekle
-    if (isMobile()) {
-       // Mobilde her projeden sadece 1 tane temsilci resim gösterelim (Daha temiz olur)
-       // İstersen döngüyle hepsini de basabilirsin.
-       renderMobileImages(item, type, categoryId, titleContainer);
-    } 
-    
-    titlesList.appendChild(titleContainer);
-
-    // 4. DESKTOP İSE: Resimleri yanlara at (Eski düzen)
-    if (!isMobile()) {
-      renderImages(item, i, type, categoryId);
+    if (type === 'categories') {
+      titleItem.onclick = () => window.location.hash = `works/${item.id}`;
+    } else {
+      titleItem.dataset.slug = item.slug;
+      titleItem.onclick = () => window.location.hash = `works/${categoryId}/${item.slug}`;
     }
+    titlesList.appendChild(titleItem);
+
+    renderImages(item, i, type, categoryId);
   });
 }
 
-// Masaüstü Resim Render (Yanlar)
 function renderImages(item, index, type, categoryId) {
   const num = (index + 1).toString().padStart(2, '0');
   const numEl = document.createElement('div');
@@ -112,18 +94,26 @@ function renderImages(item, index, type, categoryId) {
   spacer.className = 'spacer-number';
   document.getElementById('gallery-right').appendChild(spacer);
 
-  const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
+  const basePath = type === 'categories' 
+    ? `images/${item.id}` 
+    : `images/${categoryId}/${item.slug}`;
   const ext = item.format || 'webp';
-  let count = (item.imageCount !== undefined) ? item.imageCount : 6;
+  
+  // IMAGE COUNT FIX
+  let count = 6;
+  if (item.imageCount !== undefined) {
+    count = item.imageCount;
+  }
 
   for (let j = 1; j <= count; j++) {
     const img = document.createElement('img');
     img.className = 'work-img';
     img.loading = 'lazy';
     img.src = `${basePath}/${j}.${ext}`;
+    
     img.onclick = () => {
-       if (type === 'categories') window.location.hash = `works/${item.id}`;
-       else window.location.hash = `works/${categoryId}/${item.slug}`;
+      if (type === 'categories') window.location.hash = `works/${item.id}`;
+      else window.location.hash = `works/${categoryId}/${item.slug}`;
     };
     img.onerror = function() { this.style.display = 'none'; };
 
@@ -132,39 +122,15 @@ function renderImages(item, index, type, categoryId) {
   }
 }
 
-// Mobil Resim Render (Listenin İçi)
-function renderMobileImages(item, type, categoryId, container) {
-  const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
-  const ext = item.format || 'webp';
-  // Mobilde sadece ilk resmi gösterelim ki liste çok uzamasın
-  // Eğer hepsini istersen count döngüsü kurabilirsin.
-  const img = document.createElement('img');
-  img.className = 'work-img mobile-img';
-  img.loading = 'lazy';
-  img.src = `${basePath}/1.${ext}`; // Sadece 1. resim
-  
-  img.onclick = () => {
-      if (type === 'categories') window.location.hash = `works/${item.id}`;
-      else window.location.hash = `works/${categoryId}/${item.slug}`;
-  };
-  img.onerror = function() { this.style.display = 'none'; };
-  
-  container.appendChild(img);
-}
-
-
-// ============= ANA MENÜ =============
+// ============= ANA MENÜ (LEVEL 1) =============
 export function showCategories() {
   currentCategory = null;
   resetListScroll();
-  titlesList.innerHTML = '';
-  
-  // Desktop temizliği
-  if(!isMobile()) {
-      document.getElementById('gallery-left').innerHTML = '';
-      document.getElementById('gallery-right').innerHTML = '';
-  }
 
+  titlesList.innerHTML = '';
+  document.getElementById('gallery-left').innerHTML = '';
+  document.getElementById('gallery-right').innerHTML = '';
+  
   let globalIndex = 0;
 
   allSections.forEach(section => {
@@ -174,57 +140,55 @@ export function showCategories() {
     titlesList.appendChild(sectionHeader);
 
     section.categories.forEach(cat => {
-        // RenderList mantığını burada manuel uyguluyoruz
-        // Kapsayıcı
-        const titleContainer = document.createElement('div');
-        titleContainer.className = 'mobile-card';
+      const titleItem = document.createElement('div');
+      titleItem.className = 'title-item';
+      titleItem.textContent = cat.title;
+      titleItem.onclick = () => window.location.hash = `works/${cat.id}`;
+      titlesList.appendChild(titleItem);
 
-        const titleItem = document.createElement('div');
-        titleItem.className = 'title-item';
-        titleItem.textContent = cat.title;
-        titleItem.onclick = () => window.location.hash = `works/${cat.id}`;
-        titleContainer.appendChild(titleItem);
-
-        if (isMobile()) {
-            renderMobileImages(cat, 'categories', null, titleContainer);
-        }
-
-        titlesList.appendChild(titleContainer);
-
-        if (!isMobile()) {
-            renderImages(cat, globalIndex, 'categories');
-        }
-        globalIndex++;
+      renderImages(cat, globalIndex, 'categories');
+      globalIndex++;
     });
   });
 }
 
-// ============= ALT MENÜ =============
+// ============= ALT MENÜ (LEVEL 2) =============
 export function openCategory(categoryId) {
   if (currentCategory === categoryId) return;
   currentCategory = categoryId;
+
   let categoryData = null;
   for (const section of allSections) {
     const found = section.categories.find(c => c.id === categoryId);
-    if (found) { categoryData = found; break; }
+    if (found) {
+      categoryData = found;
+      break;
+    }
   }
+  
   if (!categoryData) return;
   renderList(categoryData.projects, 'projects', categoryId, categoryData.title);
 }
 
-// ============= SCROLL SPY (MOBİLDE KAPALI OLSUN) =============
+// ============= SCROLL SPY & AUTO SCROLL (THRESHOLD YÖNTEMİ) =============
 function handleScrollSpy() {
-  // Mobilde Auto-Scroll kafa karıştırır, kapatalım.
-  if (isMobile()) return; 
-
   if (viewWorks.classList.contains('locked')) return;
+
   const markers = document.querySelectorAll('.project-number');
   const titleItems = Array.from(titlesList.querySelectorAll('.title-item')).filter(el => !el.classList.contains('back-btn'));
   const listContainer = document.querySelector('.sticky-wrapper'); 
-  
-  // Çizgiyi Geçen (Threshold) Yöntemi
+
+  // --- YENİ MANTIK: THRESHOLD (EŞİK ÇİZGİSİ) ---
+  // Ekranın tepesinden %35 aşağıda görünmez bir çizgi var.
+  // Bir elemanın tepesi bu çizginin üzerine çıktığı an (altına girdiği an) aktif olur.
+  // Bu yöntem "ikinci elemanı atlama" sorununu kesin çözer çünkü sırayla geçerler.
   const triggerLine = window.innerHeight * 0.35;
+  
+  // Varsayılan olarak 0. eleman aktiftir
   let activeIndex = 0;
+
+  // Döngüyle kontrol et: Hangisi çizgiyi geçmiş?
+  // activeIndex, çizgiyi geçen EN SON elemanın indexi olur.
   markers.forEach((marker, i) => {
     const rect = marker.getBoundingClientRect();
     if (rect.top < triggerLine) {
@@ -232,29 +196,44 @@ function handleScrollSpy() {
     }
   });
 
+  // --- UÇ DURUM GÜVENLİĞİ ---
+  // Eğer listenin en sonuna geldiysek, matematik ne derse desin sonuncuyu seç.
   const scrollPosition = viewWorks.scrollTop;
   const maxScroll = viewWorks.scrollHeight - viewWorks.clientHeight;
   if (scrollPosition >= maxScroll - 50) {
     activeIndex = markers.length - 1;
   }
 
+  // --- CLASS GÜNCELLEME & AUTO SCROLL ---
   titleItems.forEach((item, i) => {
     if (i === activeIndex) {
+      // Sadece DEĞİŞİKLİK olduğunda işlem yap (Performans ve Titreme Önleyici)
       if (!item.classList.contains('active')) {
+        // Eski aktifi temizle
         titleItems.forEach(el => el.classList.remove('active'));
+        
+        // Yeni aktifi işaretle
         item.classList.add('active');
+        
+        // Auto Scroll (Clamp ile güvenli hale getirildi)
         if (listContainer) {
           let targetScroll = item.offsetTop - (listContainer.clientHeight / 2) + (item.clientHeight / 2);
           const maxListScroll = listContainer.scrollHeight - listContainer.clientHeight;
+          
+          // Hedefi sınırla (0 ile max arasında)
           targetScroll = Math.max(0, Math.min(targetScroll, maxListScroll));
-          listContainer.scrollTo({ top: targetScroll, behavior: 'smooth' });
+
+          listContainer.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+          });
         }
       }
     }
   });
 }
 
-// ... Detay fonksiyonları aynı ...
+// ============= DETAY AÇMA/KAPAMA =============
 export async function openProjectDetail(categoryId, projectSlug) {
   const titleItems = Array.from(titlesList.querySelectorAll('.title-item'));
   titleItems.forEach(el => {
@@ -263,10 +242,13 @@ export async function openProjectDetail(categoryId, projectSlug) {
   });
 
   const backBtn = titlesList.querySelector('.back-btn');
-  if (backBtn && !isMobile()) { // Mobilde detay açılınca geri butonu farklı davranabilir
-     // Mobilde detay zaten tam ekran, buton detay panelinde olmalı.
+  if (backBtn) {
+    backBtn.innerHTML = '← Back';
+    backBtn.onclick = (e) => {
+      e.stopPropagation();
+      window.location.hash = `works/${categoryId}`;
+    };
   }
-  if(backBtn && isMobile()) backBtn.style.display = 'none'; // Detay açılınca listedeki back butonunu gizle
 
   document.querySelector('.zone-right').classList.add('faded');
   viewWorks.classList.add('locked');
@@ -280,20 +262,6 @@ export async function openProjectDetail(categoryId, projectSlug) {
     const html = await res.text();
     detailPanel.innerHTML = html;
     mount(detailPanel);
-    
-    // Mobilde Detay Paneline Geri Butonu Ekle
-    if(isMobile()){
-        const closeBtn = document.createElement('div');
-        closeBtn.innerHTML = '← Back';
-        closeBtn.style.cssText = "position:fixed; top:20px; left:20px; font-weight:bold; cursor:pointer; z-index:999";
-        closeBtn.onclick = () => {
-             // Detayı kapatınca listeye dön
-             if (currentCategory) window.location.hash = `works/${currentCategory}`;
-             else window.location.hash = 'works';
-        };
-        detailPanel.prepend(closeBtn);
-    }
-
   } catch (err) { detailPanel.innerHTML = '<p>Content not found.</p>'; }
 }
 
@@ -301,20 +269,19 @@ export function closeProjectDetail() {
   detailPanel.classList.remove('active');
   detailPanel.innerHTML = '';
   unmount();
+
   document.querySelector('.zone-right').classList.remove('faded');
   viewWorks.classList.remove('locked');
   
   const backBtn = titlesList ? titlesList.querySelector('.back-btn') : null;
-  if(backBtn && isMobile()) backBtn.style.display = 'flex'; // Geri getir
-
-  // Desktop butonu reset
-  if (backBtn && !isMobile()) {
+  if (backBtn) {
     backBtn.innerHTML = '← Main Menu';
     backBtn.onclick = (e) => {
       e.stopPropagation();
       window.location.hash = 'works';
     };
   }
+  
   handleScrollSpy();
 }
 
