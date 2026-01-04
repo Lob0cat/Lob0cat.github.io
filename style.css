@@ -356,13 +356,14 @@ body {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     
-    /* Listeyi ortalamak için boşluklar */
+    /* GÜNCELLEME BURADA: */
+    /* Üstten %45 boşluk (İlk resim ortada başlasın) */
     padding-top: 45vh; 
-    padding-bottom: 45vh; 
+    
+    /* Alttan %55 boşluk (Son resim ekranın ortasını rahatça geçebilsin) */
+    padding-bottom: 55vh; 
     
     scrollbar-width: none;
-    
-    /* Scroll performansını artırır */
     -webkit-overflow-scrolling: touch; 
     overscroll-behavior-y: contain;
   }
