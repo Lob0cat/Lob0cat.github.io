@@ -223,19 +223,16 @@ export function openCategory(categoryId) {
 }
 
 // ============= MOBİL SCROLL SPY (ORTADAN TETİKLENİR) =============
-// ============= MOBİL SCROLL SPY =============
 function handleMobileScrollSpy() {
   const wrappers = document.querySelectorAll('.mobile-project-wrapper');
   let activeIndex = 0;
   
-  // EŞİK GÜNCELLEMESİ:
-  // Android tarayıcılarında adres çubuğu açılıp kapanınca yükseklik değişir.
-  // 0.5 (Tam orta) bazen sapıtabilir. 
-  // 0.4 (Biraz yukarısı) daha güvenlidir.
-  const triggerLine = window.innerHeight * 0.45;
+  // === GÜNCELLEME: Tetikleyici Tam Ortada (0.5) ===
+  const triggerLine = window.innerHeight * 0.50;
   
   wrappers.forEach(wrapper => {
       const rect = wrapper.getBoundingClientRect();
+      // Eleman ortadaki çizgiyi geçtiyse (yukarı doğru) aktif yap
       if(rect.top < triggerLine) {
           activeIndex = parseInt(wrapper.dataset.index);
       }
@@ -246,8 +243,7 @@ function handleMobileScrollSpy() {
       if(i === activeIndex) {
           if (!item.classList.contains('active')) {
              item.classList.add('active');
-             // Smooth scroll bazen Samsung'da takılır, 'auto' daha kesindir.
-             item.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
       } else {
           item.classList.remove('active');
