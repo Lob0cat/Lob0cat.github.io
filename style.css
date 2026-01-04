@@ -301,13 +301,12 @@ body {
 .view { opacity: 0; visibility: hidden; transition: opacity 0.5s; }
 .view.active { opacity: 1; visibility: visible; }
 
-
 /* =========================================
-   MOBİL UYUMLULUK (DÜZELTİLMİŞ FİNAL)
+   MOBİL UYUMLULUK (ORTALAMA İÇİN GÜNCELLENDİ)
    ========================================= */
 @media (max-width: 768px) {
 
-  /* 1. HEADER & İSİM AYARLARI */
+  /* Header */
   #main-header {
     height: auto;
     width: auto;
@@ -318,19 +317,14 @@ body {
     padding: 0;
     justify-content: flex-end;
     background: transparent;
-    pointer-events: auto; /* Tıklanabilsin */
+    pointer-events: auto; 
   }
   
   .nav-track { gap: 15px; }
-  
-  .nav-item {
-    font-size: 0.85rem !important;
-    opacity: 0.5;
-    font-weight: 600;
-  }
+  .nav-item { font-size: 0.85rem !important; opacity: 0.5; font-weight: 600; }
   .nav-item.active { opacity: 1; letter-spacing: normal; font-size: 0.85rem !important; }
 
-  /* İsim (Sol Üst) */
+  /* İsim */
   .site-footer {
     top: 1.5rem;
     left: 1.5rem;
@@ -341,41 +335,48 @@ body {
     display: block !important;
   }
 
-  /* 2. ANA YAPI (WORKS) */
+  /* Ana Yapı */
   #view-works {
     display: flex;
     flex-direction: row;
     padding: 0;
-    padding-top: 100px;
+    /* Header payını buradan siliyoruz çünkü zone-left'e dev padding vericez */
+    padding-top: 0; 
     height: 100vh;
     overflow: hidden;
   }
 
-  /* SOL ALAN (Resimler ve Geri Butonu Buraya Gelecek) */
+  /* SOL ALAN (Resimler) - GÜNCELLEME BURADA */
   .zone-left {
     display: flex;
     flex-direction: column;
-    width: 100%; /* Ekranın tamamını kullansın, menü üstüne biner */
+    width: 100%;
     height: 100%;
     overflow-y: auto;
     padding-left: 1.5rem;
-    padding-right: 1.5rem; /* Sağdan da boşluk bırakalım */
-    padding-bottom: 8rem; /* Alttaki menü için boşluk */
+    padding-right: 1.5rem;
+    
+    /* === KRİTİK GÜNCELLEME: START FROM MIDDLE === */
+    /* Ekranın yarısı kadar boşluk bırak ki ilk resim ortadan başlasın */
+    padding-top: 45vh; 
+    /* Son resim de ortaya kadar çıkabilsin */
+    padding-bottom: 45vh; 
+    
     scrollbar-width: none;
   }
   .zone-left::-webkit-scrollbar { display: none; }
 
-  /* ORTA ALAN (MENÜ - SAĞ ALT) */
+  /* MENÜ (SAĞ ALT) */
   .zone-middle {
-    position: fixed !important; /* Kesin Sabitleme */
+    position: fixed !important; 
     bottom: 2rem;
     right: 1.5rem;
-    top: auto; left: auto; /* Reset */
+    top: auto; left: auto;
     width: auto;
     height: auto;
-    z-index: 999; /* En üstte */
+    z-index: 999;
     padding: 0;
-    pointer-events: none; /* Boşluklar tıklamayı engellemesin */
+    pointer-events: none;
     display: flex;
     justify-content: flex-end;
     background: transparent;
@@ -393,17 +394,16 @@ body {
   #project-titles-list {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Sağa yasla */
+    align-items: flex-end;
     gap: 0.3rem;
     padding: 0;
   }
 
-  /* Liste Elemanları */
   .title-item {
     font-size: 0.75rem;
     color: #aaa;
     text-transform: uppercase;
-    pointer-events: auto; /* Tıklanabilsin */
+    pointer-events: auto; 
     text-align: right;
     transition: color 0.3s;
   }
@@ -412,15 +412,12 @@ body {
     font-weight: 700;
     font-size: 0.75rem;
   }
-  .title-item.active::after { display: none; } /* Oku kaldırdık, sadelik için */
+  .title-item.active::after { display: none; }
 
-  /* Gizlenecekler */
   .zone-right { display: none; }
   .list-section-header { display: none; } 
-  /* Masaüstü geri butonu menü içinde gizlensin, biz onu sol panele alacağız */
   #project-titles-list .back-btn { display: none !important; }
 
-  /* MOBİL GERİ BUTONU (Sol Paneldeki) */
   .mobile-back-btn {
     display: block;
     margin-bottom: 2rem;
@@ -431,7 +428,6 @@ body {
     opacity: 0.6;
   }
 
-  /* 3. RESİM VE NUMARA STİLLERİ */
   .mobile-project-wrapper {
     margin-bottom: 4rem;
     position: relative;
@@ -446,45 +442,37 @@ body {
   }
 
   .work-img {
-    width: 100%; /* Telefonta tam genişlik */
-    max-width: 400px; /* Tablette çok büyümesin */
+    width: 100%; 
+    max-width: 400px;
     height: auto;
     object-fit: cover;
     display: block;
   }
 
-  /* 4. ABOUT SAYFASI (DÜZELTME) */
-  /* HTML içindeki inline stilleri !important ile eziyoruz */
+  /* ABOUT DÜZELTME */
   #view-about {
     padding: 100px 1.5rem 2rem 1.5rem !important;
     overflow-y: auto;
     display: block;
   }
-
   #view-about .about-container {
     padding: 0 !important;
     width: 100% !important;
     display: block !important;
   }
-
   #view-about .about-grid {
     display: flex !important;
     flex-direction: column !important;
     gap: 3rem !important;
-    grid-template-columns: 1fr !important; /* Grid'i iptal et */
+    grid-template-columns: 1fr !important;
   }
-
   #view-about .col-bio, 
   #view-about .col-clients, 
   #view-about .col-awards {
     width: 100% !important;
     max-width: 100% !important;
   }
-
-  /* Yazı Boyutları */
   .col-bio p { font-size: 1.1rem; line-height: 1.5; }
-  
-  /* Footer hizalama */
   .about-footer-row {
     flex-direction: column;
     align-items: flex-start;
