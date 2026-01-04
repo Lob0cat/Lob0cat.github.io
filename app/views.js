@@ -14,6 +14,9 @@ const staticContainers = {
   contact: document.getElementById('contact-content')
 };
 
+// Mobil Algılama
+const isMobile = () => window.innerWidth <= 768;
+
 export async function initWorks() {
   const res = await fetch('projects.json');
   const data = await res.json();
@@ -21,42 +24,51 @@ export async function initWorks() {
   
   showCategories();
   
-  viewWorks.addEventListener('scroll', handleScrollSpy);
-}
-
-// ============= SCROLL RESET (Zıplamayı Önler) =============
-function resetListScroll() {
-  const listContainer = document.querySelector('.sticky-wrapper');
-  if (listContainer) {
-    listContainer.scrollTop = 0;
+  if (isMobile()) {
+    document.querySelector('.zone-left').addEventListener('scroll', handleMobileScrollSpy);
+  } else {
+    viewWorks.addEventListener('scroll', handleDesktopScrollSpy);
   }
 }
 
-// ============= ORTAK RENDER MOTORU =============
+function resetListScroll() {
+  const listContainer = document.querySelector('.sticky-wrapper');
+  if (listContainer) listContainer.scrollTop = 0;
+  if (isMobile()) document.querySelector('.zone-left').scrollTop = 0;
+  else viewWorks.scrollTop = 0;
+}
+
+// ============= RENDER MOTORU =============
 function renderList(items, type, categoryId = null, headerTitle = null) {
-  // 1. ÖNCE SCROLL SIFIRLA
   resetListScroll();
 
-  // 2. TEMİZLİK
   titlesList.innerHTML = '';
-  document.getElementById('gallery-left').innerHTML = '';
-  document.getElementById('gallery-right').innerHTML = '';
+  galleryLeft.innerHTML = '';
+  galleryRight.innerHTML = '';
 
-  // 3. GERİ BUTONU (Sadece Proje Listesi ise)
-  if (type === 'projects') {
+  // --- MOBİL İÇİN GERİ BUTONU (SOL ÜSTE EKLE) ---
+  if (type === 'projects' && isMobile()) {
+    const mobileBackBtn = document.createElement('div');
+    mobileBackBtn.className = 'mobile-back-btn'; // CSS'de stil verdik
+    mobileBackBtn.innerHTML = '← Back';
+    mobileBackBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        window.location.hash = 'works'; 
+    };
+    galleryLeft.appendChild(mobileBackBtn);
+  }
+
+  // --- DESKTOP İÇİN GERİ BUTONU (MENÜYE EKLE) ---
+  if (type === 'projects' && !isMobile()) {
     const backBtn = document.createElement('div');
     backBtn.className = 'back-btn';
     backBtn.innerHTML = '← Main Menu';
-    backBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      window.location.hash = 'works';
-    });
+    backBtn.onclick = (e) => { e.stopPropagation(); window.location.hash = 'works'; };
     titlesList.appendChild(backBtn);
   }
 
-  // 4. BAŞLIK EKLE (Hizalama için gerekli)
-  if (headerTitle) {
+  // Desktop Başlık
+  if (headerTitle && !isMobile()) {
     const header = document.createElement('div');
     header.className = 'list-section-header';
     header.innerHTML = `<span>${headerTitle}</span>`;
@@ -64,46 +76,78 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titlesList.appendChild(header);
   }
 
-  // 5. LİSTE ELEMANLARI
+  // LİSTELEME
   items.forEach((item, i) => {
+    // 1. Menü Öğesi (Sağ Alt)
     const titleItem = document.createElement('div');
-    const isActive = (type === 'projects' && i === 0);
-    titleItem.className = `title-item ${isActive ? 'active' : ''}`;
+    titleItem.className = `title-item ${i===0 ? 'active' : ''}`;
     titleItem.textContent = item.title;
-    
-    if (type === 'categories') {
-      titleItem.onclick = () => window.location.hash = `works/${item.id}`;
-    } else {
-      titleItem.dataset.slug = item.slug;
-      titleItem.onclick = () => window.location.hash = `works/${categoryId}/${item.slug}`;
-    }
+    const goLink = () => {
+      if (type === 'categories') window.location.hash = `works/${item.id}`;
+      else window.location.hash = `works/${categoryId}/${item.slug}`;
+    };
+    titleItem.onclick = goLink;
+    titleItem.id = `nav-${type}-${i}`;
     titlesList.appendChild(titleItem);
 
-    renderImages(item, i, type, categoryId);
+    // 2. Resim Alanı
+    if (isMobile()) {
+       renderMobileImages(item, i, type, categoryId);
+    } else {
+       renderDesktopImages(item, i, type, categoryId);
+    }
   });
 }
 
-function renderImages(item, index, type, categoryId) {
+// --- MOBİL RESİM RENDER (SADECE NUMARA + RESİM) ---
+function renderMobileImages(item, index, type, categoryId) {
+  const container = document.getElementById('gallery-left');
+  const num = (index + 1).toString().padStart(2, '0');
+  
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mobile-project-wrapper';
+  wrapper.dataset.index = index;
+  
+  // DÜZELTME: Sadece Numara (İsim Yok)
+  const label = document.createElement('div');
+  label.className = 'project-number';
+  label.textContent = num; // Sadece "01", "02" vs.
+  wrapper.appendChild(label);
+
+  const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
+  const ext = item.format || 'webp';
+  let count = (item.imageCount !== undefined) ? item.imageCount : 6;
+  
+  if(count > 0) {
+      const img = document.createElement('img');
+      img.className = 'work-img';
+      img.src = `${basePath}/1.${ext}`;
+      img.loading = 'lazy';
+      img.onclick = () => {
+         if (type === 'categories') window.location.hash = `works/${item.id}`;
+         else window.location.hash = `works/${categoryId}/${item.slug}`;
+      };
+      img.onerror = function() { this.style.display = 'none'; };
+      wrapper.appendChild(img);
+  }
+  container.appendChild(wrapper);
+}
+
+// --- DESKTOP RESİM RENDER ---
+function renderDesktopImages(item, index, type, categoryId) {
   const num = (index + 1).toString().padStart(2, '0');
   const numEl = document.createElement('div');
   numEl.className = 'project-number';
   numEl.textContent = num;
-  document.getElementById('gallery-left').appendChild(numEl);
+  galleryLeft.appendChild(numEl);
 
   const spacer = document.createElement('div');
   spacer.className = 'spacer-number';
-  document.getElementById('gallery-right').appendChild(spacer);
+  galleryRight.appendChild(spacer);
 
-  const basePath = type === 'categories' 
-    ? `images/${item.id}` 
-    : `images/${categoryId}/${item.slug}`;
+  const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
   const ext = item.format || 'webp';
-  
-  // IMAGE COUNT FIX
-  let count = 6;
-  if (item.imageCount !== undefined) {
-    count = item.imageCount;
-  }
+  let count = (item.imageCount !== undefined) ? item.imageCount : 6;
 
   for (let j = 1; j <= count; j++) {
     const img = document.createElement('img');
@@ -112,144 +156,125 @@ function renderImages(item, index, type, categoryId) {
     img.src = `${basePath}/${j}.${ext}`;
     
     img.onclick = () => {
-      if (type === 'categories') window.location.hash = `works/${item.id}`;
-      else window.location.hash = `works/${categoryId}/${item.slug}`;
+       if (type === 'categories') window.location.hash = `works/${item.id}`;
+       else window.location.hash = `works/${categoryId}/${item.slug}`;
     };
     img.onerror = function() { this.style.display = 'none'; };
 
-    if (j <= 2) document.getElementById('gallery-left').appendChild(img);
-    else document.getElementById('gallery-right').appendChild(img);
+    if (j <= 2) galleryLeft.appendChild(img);
+    else galleryRight.appendChild(img);
   }
 }
 
-// ============= ANA MENÜ (LEVEL 1) =============
+// ============= ANA MENÜ =============
 export function showCategories() {
   currentCategory = null;
   resetListScroll();
-
   titlesList.innerHTML = '';
-  document.getElementById('gallery-left').innerHTML = '';
-  document.getElementById('gallery-right').innerHTML = '';
-  
+  galleryLeft.innerHTML = '';
+  galleryRight.innerHTML = '';
+
   let globalIndex = 0;
 
   allSections.forEach(section => {
-    const sectionHeader = document.createElement('div');
-    sectionHeader.className = 'list-section-header';
-    sectionHeader.innerHTML = `<span>${section.title}</span><div class="line"></div>`;
-    titlesList.appendChild(sectionHeader);
+    if(!isMobile()) {
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'list-section-header';
+        sectionHeader.innerHTML = `<span>${section.title}</span><div class="line"></div>`;
+        titlesList.appendChild(sectionHeader);
+    }
 
     section.categories.forEach(cat => {
       const titleItem = document.createElement('div');
       titleItem.className = 'title-item';
       titleItem.textContent = cat.title;
       titleItem.onclick = () => window.location.hash = `works/${cat.id}`;
+      titleItem.id = `nav-categories-${globalIndex}`;
       titlesList.appendChild(titleItem);
 
-      renderImages(cat, globalIndex, 'categories');
+      if(isMobile()) {
+          renderMobileImages(cat, globalIndex, 'categories');
+      } else {
+          renderDesktopImages(cat, globalIndex, 'categories');
+      }
       globalIndex++;
     });
   });
 }
 
-// ============= ALT MENÜ (LEVEL 2) =============
+// ============= ALT MENÜ =============
 export function openCategory(categoryId) {
   if (currentCategory === categoryId) return;
   currentCategory = categoryId;
-
   let categoryData = null;
   for (const section of allSections) {
     const found = section.categories.find(c => c.id === categoryId);
-    if (found) {
-      categoryData = found;
-      break;
-    }
+    if (found) { categoryData = found; break; }
   }
-  
   if (!categoryData) return;
   renderList(categoryData.projects, 'projects', categoryId, categoryData.title);
 }
 
-// ============= SCROLL SPY & AUTO SCROLL (THRESHOLD YÖNTEMİ) =============
-function handleScrollSpy() {
-  if (viewWorks.classList.contains('locked')) return;
+// ============= MOBİL SCROLL SPY =============
+function handleMobileScrollSpy() {
+  const wrappers = document.querySelectorAll('.mobile-project-wrapper');
+  let activeIndex = 0;
+  const triggerLine = window.innerHeight * 0.30;
+  
+  wrappers.forEach(wrapper => {
+      const rect = wrapper.getBoundingClientRect();
+      if(rect.top < triggerLine) {
+          activeIndex = parseInt(wrapper.dataset.index);
+      }
+  });
 
+  const navItems = document.querySelectorAll('#project-titles-list .title-item');
+  navItems.forEach((item, i) => {
+      if(i === activeIndex) {
+          item.classList.add('active');
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+          item.classList.remove('active');
+      }
+  });
+}
+
+// ============= DESKTOP SCROLL SPY =============
+function handleDesktopScrollSpy() {
+  if (viewWorks.classList.contains('locked')) return;
   const markers = document.querySelectorAll('.project-number');
   const titleItems = Array.from(titlesList.querySelectorAll('.title-item')).filter(el => !el.classList.contains('back-btn'));
   const listContainer = document.querySelector('.sticky-wrapper'); 
 
-  // --- YENİ MANTIK: THRESHOLD (EŞİK ÇİZGİSİ) ---
-  // Ekranın tepesinden %35 aşağıda görünmez bir çizgi var.
-  // Bir elemanın tepesi bu çizginin üzerine çıktığı an (altına girdiği an) aktif olur.
-  // Bu yöntem "ikinci elemanı atlama" sorununu kesin çözer çünkü sırayla geçerler.
   const triggerLine = window.innerHeight * 0.35;
-  
-  // Varsayılan olarak 0. eleman aktiftir
   let activeIndex = 0;
-
-  // Döngüyle kontrol et: Hangisi çizgiyi geçmiş?
-  // activeIndex, çizgiyi geçen EN SON elemanın indexi olur.
+  
   markers.forEach((marker, i) => {
     const rect = marker.getBoundingClientRect();
-    if (rect.top < triggerLine) {
-      activeIndex = i;
-    }
+    if (rect.top < triggerLine) activeIndex = i;
   });
 
-  // --- UÇ DURUM GÜVENLİĞİ ---
-  // Eğer listenin en sonuna geldiysek, matematik ne derse desin sonuncuyu seç.
   const scrollPosition = viewWorks.scrollTop;
   const maxScroll = viewWorks.scrollHeight - viewWorks.clientHeight;
-  if (scrollPosition >= maxScroll - 50) {
-    activeIndex = markers.length - 1;
-  }
+  if (scrollPosition >= maxScroll - 50) activeIndex = markers.length - 1;
 
-  // --- CLASS GÜNCELLEME & AUTO SCROLL ---
   titleItems.forEach((item, i) => {
     if (i === activeIndex) {
-      // Sadece DEĞİŞİKLİK olduğunda işlem yap (Performans ve Titreme Önleyici)
       if (!item.classList.contains('active')) {
-        // Eski aktifi temizle
         titleItems.forEach(el => el.classList.remove('active'));
-        
-        // Yeni aktifi işaretle
         item.classList.add('active');
-        
-        // Auto Scroll (Clamp ile güvenli hale getirildi)
         if (listContainer) {
           let targetScroll = item.offsetTop - (listContainer.clientHeight / 2) + (item.clientHeight / 2);
           const maxListScroll = listContainer.scrollHeight - listContainer.clientHeight;
-          
-          // Hedefi sınırla (0 ile max arasında)
           targetScroll = Math.max(0, Math.min(targetScroll, maxListScroll));
-
-          listContainer.scrollTo({
-            top: targetScroll,
-            behavior: 'smooth'
-          });
+          listContainer.scrollTo({ top: targetScroll, behavior: 'smooth' });
         }
       }
     }
   });
 }
 
-// ============= DETAY AÇMA/KAPAMA =============
 export async function openProjectDetail(categoryId, projectSlug) {
-  const titleItems = Array.from(titlesList.querySelectorAll('.title-item'));
-  titleItems.forEach(el => {
-    if (el.dataset.slug === projectSlug) el.classList.add('active');
-    else el.classList.remove('active');
-  });
-
-  const backBtn = titlesList.querySelector('.back-btn');
-  if (backBtn) {
-    backBtn.innerHTML = '← Back';
-    backBtn.onclick = (e) => {
-      e.stopPropagation();
-      window.location.hash = `works/${categoryId}`;
-    };
-  }
-
   document.querySelector('.zone-right').classList.add('faded');
   viewWorks.classList.add('locked');
   detailPanel.classList.add('active');
@@ -261,6 +286,19 @@ export async function openProjectDetail(categoryId, projectSlug) {
     if (!res.ok) throw new Error('Not found');
     const html = await res.text();
     detailPanel.innerHTML = html;
+    
+    // Mobilde Detay İçin Geri Butonu
+    if(isMobile()) {
+       const closeBtn = document.createElement('div');
+       closeBtn.innerHTML = '← Back';
+       closeBtn.style.cssText = "position:fixed; top:20px; left:20px; font-weight:700; z-index:999; cursor:pointer;";
+       closeBtn.onclick = () => {
+           if(currentCategory) window.location.hash = `works/${currentCategory}`;
+           else window.location.hash = 'works';
+       };
+       detailPanel.prepend(closeBtn);
+    }
+    
     mount(detailPanel);
   } catch (err) { detailPanel.innerHTML = '<p>Content not found.</p>'; }
 }
@@ -269,20 +307,10 @@ export function closeProjectDetail() {
   detailPanel.classList.remove('active');
   detailPanel.innerHTML = '';
   unmount();
-
   document.querySelector('.zone-right').classList.remove('faded');
   viewWorks.classList.remove('locked');
-  
-  const backBtn = titlesList ? titlesList.querySelector('.back-btn') : null;
-  if (backBtn) {
-    backBtn.innerHTML = '← Main Menu';
-    backBtn.onclick = (e) => {
-      e.stopPropagation();
-      window.location.hash = 'works';
-    };
-  }
-  
-  handleScrollSpy();
+  if (isMobile()) handleMobileScrollSpy();
+  else handleDesktopScrollSpy();
 }
 
 export async function loadStaticView(viewName) {
@@ -298,6 +326,10 @@ export async function loadStaticView(viewName) {
 }
 
 export function destroyWorks() { 
-  viewWorks.removeEventListener('scroll', handleScrollSpy);
+  if(isMobile()) {
+      document.querySelector('.zone-left')?.removeEventListener('scroll', handleMobileScrollSpy);
+  } else {
+      viewWorks.removeEventListener('scroll', handleDesktopScrollSpy);
+  }
   unmount(); 
 }
