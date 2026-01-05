@@ -94,6 +94,10 @@ function renderList(items, type, categoryId = null, headerTitle = null) {
     titleItem.className = `title-item ${i===0 ? 'active' : ''}`;
     titleItem.textContent = item.title;
     
+    // === EKLENTİ: SLUG VERİSİNİ EKLE ===
+    // Bu satır sayesinde openProjectDetail fonksiyonu doğru elemanı bulabilir.
+    titleItem.dataset.slug = item.slug;
+
     const goLink = () => {
       if (type === 'categories') window.location.hash = `works/${item.id}`;
       else window.location.hash = `works/${categoryId}/${item.slug}`;
@@ -196,6 +200,10 @@ export function showCategories() {
       const titleItem = document.createElement('div');
       titleItem.className = 'title-item';
       titleItem.textContent = cat.title;
+      
+      // === EKLENTİ: SLUG/ID VERİSİNİ EKLE ===
+      titleItem.dataset.slug = cat.id;
+
       titleItem.onclick = () => window.location.hash = `works/${cat.id}`;
       titleItem.id = `nav-categories-${globalIndex}`;
       titlesList.appendChild(titleItem);
@@ -223,45 +231,25 @@ export function openCategory(categoryId) {
 }
 
 // ============= MOBİL SCROLL SPY (ORTADAN TETİKLENİR) =============
-// ============= MOBİL SCROLL SPY (GARANTİLİ SEÇİM) =============
 function handleMobileScrollSpy() {
-  const leftZone = document.querySelector('.zone-left');
-  if (!leftZone) return;
-
   const wrappers = document.querySelectorAll('.mobile-project-wrapper');
   let activeIndex = 0;
   
-  // 1. SCROLL POZİSYONUNU AL
-  const scrollTop = leftZone.scrollTop;
-  const scrollHeight = leftZone.scrollHeight;
-  const clientHeight = leftZone.clientHeight;
+  const triggerLine = window.innerHeight * 0.50;
+  
+  wrappers.forEach(wrapper => {
+      const rect = wrapper.getBoundingClientRect();
+      if(rect.top < triggerLine) {
+          activeIndex = parseInt(wrapper.dataset.index);
+      }
+  });
 
-  // 2. "EN DİPTE MİYİZ?" KONTROLÜ
-  // Eğer scroll sonuna 50px kadar yaklaştıysak, zorla sonuncuyu seç.
-  if (scrollTop + clientHeight >= scrollHeight - 50) {
-    activeIndex = wrappers.length - 1;
-  } 
-  else {
-    // 3. DEĞİLSE NORMAL HESAP (ORTAYI GEÇENİ SEÇ)
-    const triggerLine = window.innerHeight * 0.50;
-    
-    wrappers.forEach(wrapper => {
-        const rect = wrapper.getBoundingClientRect();
-        // Resmin tepesi orta çizginin üzerine çıktıysa aktiftir
-        if(rect.top < triggerLine) {
-            activeIndex = parseInt(wrapper.dataset.index);
-        }
-    });
-  }
-
-  // 4. MENU GÜNCELLEME
   const navItems = document.querySelectorAll('#project-titles-list .title-item');
   navItems.forEach((item, i) => {
       if(i === activeIndex) {
           if (!item.classList.contains('active')) {
              item.classList.add('active');
-             // Menüdeki ismi de hafifçe kaydırarak ortala/görünür yap
-             item.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
       } else {
           item.classList.remove('active');
@@ -303,7 +291,22 @@ function handleDesktopScrollSpy() {
   });
 }
 
+// ============= DETAY AÇMA/KAPAMA (GÜNCELLENDİ) =============
 export async function openProjectDetail(categoryId, projectSlug) {
+  // 1. MENÜYÜ GÜNCELLE: İlgili projeyi bul ve aktif yap
+  const titleItems = Array.from(titlesList.querySelectorAll('.title-item'));
+  
+  titleItems.forEach(el => {
+    // dataset.slug kontrolü ile doğru elemanı bul
+    if (el.dataset.slug === projectSlug) {
+        el.classList.add('active');
+        // Menüde o elemana kaydır (Görünür olsun)
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        el.classList.remove('active');
+    }
+  });
+
   document.querySelector('.zone-right').classList.add('faded');
   viewWorks.classList.add('locked');
   detailPanel.classList.add('active');
