@@ -480,7 +480,7 @@ body {
 /* ============= SIDEBAR TOGGLE ============= */
 #sidebar-toggle {
   position: fixed;
-  top: 132.6rem;
+  top: 2.6rem;
   left: 26vw;
   z-index: 600;
   background: #fff;
@@ -506,13 +506,6 @@ body {
   background: var(--black);
   color: #fff;
 }
-
-@media (min-width: 769px) {
-  /* Liste sola kayıp çıkar */
-  body.sidebar-collapsed .zone-middle {
-    transform: translateX(-45vw);
-    pointer-events: none;
-  }
 
   /* Panel tüm ekrana yayılır */
   body.sidebar-collapsed #project-detail-panel {
