@@ -480,7 +480,7 @@ body {
 /* ============= SIDEBAR TOGGLE ============= */
 #sidebar-toggle {
   position: fixed;
-  top: 48.6rem;
+  top: 0.6rem;
   left: 26vw;
   z-index: 600;
   background: #fff;
