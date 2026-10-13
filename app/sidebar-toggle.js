@@ -4,7 +4,7 @@ const btn    = document.getElementById('sidebar-toggle');
 
 function setCollapsed(collapsed) {
   document.body.classList.toggle('sidebar-collapsed', collapsed);
-  btn.textContent = collapsed ? 'Show list' : 'Hide list';
+  btn.textContent = collapsed ? '→ Show list' : '← Hide list';
   btn.setAttribute('aria-expanded', String(!collapsed));
 }
 
