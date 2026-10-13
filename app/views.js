@@ -2,6 +2,7 @@ import { mount, unmount } from './blocks.js';
 
 let allSections = []; 
 let currentCategory = null;
+let detailRequest = 0; // en son hangi detay isteğinin geçerli olduğunu tutar
 
 const viewWorks = document.getElementById('view-works');
 const titlesList = document.getElementById('project-titles-list');
@@ -218,6 +219,15 @@ export function showCategories() {
   });
 }
 
+// Bir kategori id'sinden, onun bağlı olduğu section'ı ve kategoriyi bulur
+function findCategory(categoryId) {
+  for (const section of allSections) {
+    const category = section.categories.find(c => c.id === categoryId);
+    if (category) return { section, category };
+  }
+  return null;
+}
+
 export function openCategory(categoryId) {
   if (currentCategory === categoryId) return;
   currentCategory = categoryId;
@@ -293,17 +303,16 @@ function handleDesktopScrollSpy() {
 
 // ============= DETAY AÇMA/KAPAMA (GÜNCELLENDİ) =============
 export async function openProjectDetail(categoryId, projectSlug) {
-  // 1. MENÜYÜ GÜNCELLE: İlgili projeyi bul ve aktif yap
+  const requestId = ++detailRequest;
+
+  // 1. Menüde ilgili projeyi aktif yap
   const titleItems = Array.from(titlesList.querySelectorAll('.title-item'));
-  
   titleItems.forEach(el => {
-    // dataset.slug kontrolü ile doğru elemanı bul
     if (el.dataset.slug === projectSlug) {
-        el.classList.add('active');
-        // Menüde o elemana kaydır (Görünür olsun)
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      el.classList.add('active');
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
-        el.classList.remove('active');
+      el.classList.remove('active');
     }
   });
 
@@ -313,28 +322,45 @@ export async function openProjectDetail(categoryId, projectSlug) {
   detailPanel.innerHTML = '<p style="margin-top:20px;">Loading...</p>';
   unmount();
 
+  // 2. Dosya yolunu section'dan türet: content/IDEAS/physics/mechanics.html
+  const found = findCategory(categoryId);
+  if (!found) {
+    detailPanel.innerHTML = '<p>Content not found.</p>';
+    return;
+  }
+  const url = `content/${found.section.title}/${categoryId}/${projectSlug}.html`;
+
   try {
-    const res = await fetch(`content/${categoryId}/${projectSlug}.html`);
-    if (!res.ok) throw new Error('Not found');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${res.status} → ${url}`);
     const html = await res.text();
+
+    // Bu arada başka sayfaya geçildiyse sonucu çöpe at
+    if (requestId !== detailRequest) return;
+
     detailPanel.innerHTML = html;
-    
-    if(isMobile()) {
-       const closeBtn = document.createElement('div');
-       closeBtn.innerHTML = '← Back';
-       closeBtn.style.cssText = "position:fixed; top:20px; left:20px; font-weight:700; z-index:999; cursor:pointer;";
-       closeBtn.onclick = () => {
-           if(currentCategory) window.location.hash = `works/${currentCategory}`;
-           else window.location.hash = 'works';
-       };
-       detailPanel.prepend(closeBtn);
+
+    if (isMobile()) {
+      const closeBtn = document.createElement('div');
+      closeBtn.innerHTML = '← Back';
+      closeBtn.style.cssText = "position:fixed; top:20px; left:20px; font-weight:700; z-index:999; cursor:pointer;";
+      closeBtn.onclick = () => {
+        if (currentCategory) window.location.hash = `works/${currentCategory}`;
+        else window.location.hash = 'works';
+      };
+      detailPanel.prepend(closeBtn);
     }
-    
+
     mount(detailPanel);
-  } catch (err) { detailPanel.innerHTML = '<p>Content not found.</p>'; }
+  } catch (err) {
+    if (requestId !== detailRequest) return;
+    console.warn('Detay yüklenemedi:', err.message); // hangi yolu aradığını söyler
+    detailPanel.innerHTML = '<p>Content not found.</p>';
+  }
 }
 
 export function closeProjectDetail() {
+  detailRequest++; // bekleyen istek varsa geçersiz say
   detailPanel.classList.remove('active');
   detailPanel.innerHTML = '';
   unmount();

@@ -1,32 +1,48 @@
-const registry = new Map();
-const active = new Map();
+// Çalışan simülasyonların örnekleri
+const active = new Set();
 
-// Register a simulation module
-export function register(name, module) {
-  if (!module.init || !module.destroy) {
-    throw new Error(`Simulation "${name}" must export init() and destroy()`);
-  }
-  registry.set(name, module);
-}
+// Her destroyAll çağrısında artar. Yüklenirken sayfa değişirse
+// geç gelen simülasyonu başlatmamak için kullanılır.
+let generation = 0;
 
-// Initialize a simulation
-export function initSimulation(name, el) {
-  const module = registry.get(name);
-  if (!module) {
-    console.warn(`Simulation "${name}" not found`);
+export async function initSimulation(name, el) {
+  // Sadece küçük harf, rakam ve tireye izin ver (dosya yolu güvenliği)
+  if (!/^[a-z0-9-]+$/.test(name)) {
+    console.warn(`Geçersiz simülasyon adı: "${name}"`);
     return;
   }
-  
-  const instance = module.init(el);
-  active.set(el, { name, instance });
+
+  const myGeneration = generation;
+
+  let mod;
+  try {
+    mod = await import(`../simulations/${name}.js`);
+  } catch (err) {
+    console.warn(`Simülasyon yüklenemedi: simulations/${name}.js`, err);
+    return;
+  }
+
+  // Yükleme sürerken sayfadan çıkıldıysa başlatma
+  if (myGeneration !== generation || !el.isConnected) return;
+
+  if (typeof mod.init !== 'function') {
+    console.warn(`"${name}" dosyası init() export etmiyor`);
+    return;
+  }
+
+  const instance = mod.init(el);
+  if (instance && typeof instance.destroy === 'function') {
+    active.add(instance);
+  } else {
+    console.warn(`"${name}" init() içinden { destroy() } döndürmüyor`);
+  }
 }
 
-// Destroy all active simulations
 export function destroyAll() {
-  active.forEach(({ instance }) => {
-    if (instance && instance.destroy) {
-      instance.destroy();
-    }
+  generation++;
+  active.forEach(instance => {
+    try { instance.destroy(); }
+    catch (err) { console.error('Simülasyon temizlenirken hata:', err); }
   });
   active.clear();
 }

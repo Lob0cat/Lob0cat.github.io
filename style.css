@@ -534,3 +534,18 @@ body {
 }
 
 body.toggling #main-header { transition-delay: 0s; }
+
+/* ============= BLOCKS ============= */
+[data-block="simulation"] {
+  position: relative;
+  width: 100%;
+  height: 400px;           /* blok başına HTML'de style="height:600px" ile değişebilir */
+  margin: 2rem 0;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+  overflow: hidden;
+}
+[data-block="simulation"] canvas { display: block; }
+
+[data-block="media"] video,
+[data-block="media"] iframe { display: block; width: 100%; }
