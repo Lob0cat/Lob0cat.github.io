@@ -526,7 +526,7 @@ body {
   body.sidebar-collapsed #sidebar-toggle {
     left: 1.5rem;
   }
-}
+
 
 /* Mobilde menü zaten farklı çalışıyor, buton gerekmez */
 @media (max-width: 768px) {
