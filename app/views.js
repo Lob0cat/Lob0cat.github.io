@@ -116,9 +116,31 @@ function renderList(items, type, categoryId = null, headerData = null) {
   if (isMobile()) setTimeout(handleMobileScrollSpy, 100);
 }
 
+// Gri çerçeve + içinde kırpılmayan resim
+function createFrame(item, src, onClick) {
+  const frame = document.createElement('div');
+  frame.className = 'work-frame';
+  if (item.frame) frame.style.aspectRatio = item.frame;   // opsiyonel: JSON'dan oran
+
+  const img = document.createElement('img');
+  img.loading = 'lazy';
+  img.alt = localTitle(item);
+  img.src = src;
+  img.onerror = () => { frame.style.display = 'none'; };  // dosya yoksa gizle
+
+  frame.onclick = onClick;
+  frame.appendChild(img);
+  return frame;
+}
+
+function goTo(item, type, categoryId) {
+  window.location.hash = type === 'categories'
+    ? `works/${item.id}`
+    : `works/${categoryId}/${item.slug}`;
+}
+
 function renderMobileImages(item, index, type, categoryId) {
   const container = document.getElementById('gallery-left');
-  const num = (index + 1).toString().padStart(2, '0');
 
   const wrapper = document.createElement('div');
   wrapper.className = 'mobile-project-wrapper';
@@ -126,7 +148,7 @@ function renderMobileImages(item, index, type, categoryId) {
 
   const label = document.createElement('div');
   label.className = 'project-number';
-  label.textContent = num;
+  label.textContent = String(index + 1).padStart(2, '0');
   wrapper.appendChild(label);
 
   const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
@@ -134,49 +156,44 @@ function renderMobileImages(item, index, type, categoryId) {
   const count = (item.imageCount !== undefined) ? item.imageCount : 6;
 
   if (count > 0) {
-    const img = document.createElement('img');
-    img.className = 'work-img';
-    img.src = `${basePath}/1.${ext}`;
-    img.loading = 'lazy';
-    img.onclick = () => {
-      if (type === 'categories') window.location.hash = `works/${item.id}`;
-      else window.location.hash = `works/${categoryId}/${item.slug}`;
-    };
-    img.onerror = function () { this.style.display = 'none'; };
-    wrapper.appendChild(img);
+    wrapper.appendChild(
+      createFrame(item, `${basePath}/1.${ext}`, () => goTo(item, type, categoryId))
+    );
   }
   container.appendChild(wrapper);
 }
 
 function renderDesktopImages(item, index, type, categoryId) {
-  const num = (index + 1).toString().padStart(2, '0');
+  const row = document.createElement('div');
+  row.className = 'project-row';
+
   const numEl = document.createElement('div');
   numEl.className = 'project-number';
-  numEl.textContent = num;
-  galleryLeft.appendChild(numEl);
-
-  const spacer = document.createElement('div');
-  spacer.className = 'spacer-number';
-  galleryRight.appendChild(spacer);
+  numEl.textContent = String(index + 1).padStart(2, '0');
+  row.appendChild(numEl);
 
   const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
   const ext = item.format || 'webp';
   const count = (item.imageCount !== undefined) ? item.imageCount : 6;
 
   for (let j = 1; j <= count; j++) {
-    const img = document.createElement('img');
-    img.className = 'work-img';
-    img.loading = 'lazy';
-    img.src = `${basePath}/${j}.${ext}`;
-    img.onclick = () => {
-      if (type === 'categories') window.location.hash = `works/${item.id}`;
-      else window.location.hash = `works/${categoryId}/${item.slug}`;
-    };
-    img.onerror = function () { this.style.display = 'none'; };
+    const frame = createFrame(item, `${basePath}/${j}.${ext}`, () => goTo(item, type, categoryId));
 
-    if (j <= 2) galleryLeft.appendChild(img);
-    else galleryRight.appendChild(img);
+    if (j <= 2) {
+      // 1. ve 2. resim: sol (sütun 1-4)
+      frame.style.gridColumn = `${(j - 1) * 2 + 1} / span 2`;
+      frame.style.gridRow = '2';
+    } else {
+      // 3. ve sonrası: sağ (sütun 9-16), 4'erli satırlar
+      const k = j - 3;
+      frame.classList.add('is-right');
+      frame.style.gridColumn = `${9 + (k % 4) * 2} / span 2`;
+      frame.style.gridRow = String(2 + Math.floor(k / 4));
+    }
+    row.appendChild(frame);
   }
+
+  galleryLeft.appendChild(row);
 }
 
 export function showCategories() {
