@@ -5,51 +5,51 @@
       "description": "Mental Models & Theory",
       "categories": [
         {
-          "id": "mathematics",
+          "id": "mathematıcs",
           "imageCount": 0,
-          "title": "Mathematics",
+          "title": "Mathematıcs",
           "projects": [
-            { "slug": "analysis", "imageCount": 0, "title": "Analysis & Calculus" },
-            { "slug": "linear-algebra", "imageCount": 0, "title": "Linear Algebra" },
-            { "slug": "modeling", "imageCount": 0, "title": "Mathematical Modeling" }
+            { "slug": "analysis", "imageCount": 0, "title": "Analysıs & Calculus" },
+            { "slug": "linear-algebra", "imageCount": 0, "title": "Lınear Algebra" },
+            { "slug": "modeling", "imageCount": 0, "title": "Mathematıcal Modelıng" }
           ]
         },
         {
           "id": "physics",
           "imageCount": 0,
-          "title": "Physics",
+          "title": "Physıcs",
           "projects": [
-            { "slug": "mechanics", "imageCount": 0, "title": "Classical Mechanics" },
-            { "slug": "electromagnetism", "imageCount": 0, "title": "Electromagnetism" },
-            { "slug": "intuition", "imageCount": 0, "title": "Physical Intuition" }
+            { "slug": "mechanics", "imageCount": 0, "title": "Classıcal Mechanıcs" },
+            { "slug": "electromagnetism", "imageCount": 0, "title": "Electromagnetısm" },
+            { "slug": "intuition", "imageCount": 0, "title": "Physıcal Intuıtıon" }
           ]
         },
         {
           "id": "systems",
           "imageCount": 0,
-          "title": "Systems Thinking",
+          "title": "Systems Thınkıng",
           "projects": [
-            { "slug": "dynamical", "imageCount": 0, "title": "Dynamical Systems" },
+            { "slug": "dynamical", "imageCount": 0, "title": "Dynamıcal Systems" },
             { "slug": "control-theory", "imageCount": 0, "title": "Control Theory" },
-            { "slug": "complexity", "imageCount": 0, "title": "Complexity & Emergence" }
+            { "slug": "complexity", "imageCount": 0, "title": "Complexıty & Emergence" }
           ]
         },
         {
           "id": "learning",
           "imageCount": 0,
-          "title": "Learning Process",
+          "title": "Learnıng Process",
           "projects": [
-            { "slug": "understanding", "imageCount": 0, "title": "How Understanding Forms" },
-            { "slug": "intuition-limits", "imageCount": 0, "title": "Limits of Intuition" }
+            { "slug": "understanding", "imageCount": 0, "title": "How Understandıng Forms" },
+            { "slug": "intuition-limits", "imageCount": 0, "title": "Lımıts of Intuıtıon" }
           ]
         },
         {
           "id": "philosophy",
           "imageCount": 0,
-          "title": "Philosophy of Practice",
+          "title": "Phılosophy of Practıce",
           "projects": [
             { "slug": "knowing", "imageCount": 0, "title": "What means to Know" },
-            { "slug": "precision", "imageCount": 0, "title": "Precision vs Usefulness" }
+            { "slug": "precision", "imageCount": 0, "title": "Precısıon vs Usefulness" }
           ]
         }
       ]
@@ -61,30 +61,30 @@
         {
           "id": "robotics",
           "imageCount": 0,
-          "title": "Robotics",
+          "title": "Robotıcs",
           "projects": [
             { "slug": "ros-systems", "imageCount": 0, "title": "ROS-based Systems" },
             { "slug": "uav", "imageCount": 0, "title": "UAV & Drones" },
-            { "slug": "control-pipelines", "imageCount": 0, "title": "Control Pipelines" }
+            { "slug": "control-pipelines", "imageCount": 0, "title": "Control Pıpelınes" }
           ]
         },
         {
           "id": "vision",
           "imageCount": 0,
-          "title": "Computer Vision",
+          "title": "Computer Vısıon",
           "projects": [
-            { "slug": "processing", "imageCount": 0, "title": "Image Processing" },
-            { "slug": "object-detection", "imageCount": 0, "title": "Object Detection" },
-            { "slug": "depth", "imageCount": 0, "title": "Depth Perception" }
+            { "slug": "processing", "imageCount": 0, "title": "Image Processıng" },
+            { "slug": "object-detection", "imageCount": 0, "title": "Object Detectıon" },
+            { "slug": "depth", "imageCount": 0, "title": "Depth Perceptıon" }
           ]
         },
         {
           "id": "simulation",
           "imageCount": 0,
-          "title": "Simulation",
+          "title": "Sımulatıon",
           "projects": [
-            { "slug": "physics-sims", "imageCount": 0, "title": "Physics Simulators" },
-            { "slug": "model-validation", "imageCount": 0, "title": "Model Validation" }
+            { "slug": "physics-sims", "imageCount": 0, "title": "Physıcs Sımulators" },
+            { "slug": "model-validation", "imageCount": 0, "title": "Model Valıdatıon" }
           ]
         },
         {
@@ -92,8 +92,8 @@
           "imageCount": 0,
           "title": "Software Systems",
           "projects": [
-            { "slug": "linux-dev", "imageCount": 0, "title": "Linux Development" },
-            { "slug": "docker", "imageCount": 0, "title": "Docker & Containers" }
+            { "slug": "linux-dev", "imageCount": 0, "title": "Lınux Development" },
+            { "slug": "docker", "imageCount": 0, "title": "Docker & Contaıners" }
           ]
         },
         {
@@ -102,16 +102,16 @@
           "title": "Embedded & Hardware",
           "projects": [
             { "slug": "jetson", "imageCount": 0, "title": "Jetson Platforms" },
-            { "slug": "microcontrollers", "imageCount": 0, "title": "Microcontrollers" }
+            { "slug": "microcontrollers", "imageCount": 0, "title": "Mıcrocontrollers" }
           ]
         },
         {
           "id": "training",
           "imageCount": 0,
-          "title": "Physical Training",
+          "title": "Physıcal Traınıng",
           "projects": [
-            { "slug": "calisthenics", "imageCount": 0, "title": "Calisthenics" },
-            { "slug": "movement", "imageCount": 0, "title": "Movement Analysis" }
+            { "slug": "calisthenics", "imageCount": 0, "title": "Calısthenıcs" },
+            { "slug": "movement", "imageCount": 0, "title": "Movement Analysıs" }
           ]
         }
       ]
@@ -124,36 +124,36 @@
         {
           "id": "technical-writing",
           "imageCount": 0,
-          "title": "Technical Writing",
+          "title": "Technıcal Wrıtıng",
           "projects": [
-            { "slug": "docs", "imageCount": 0, "title": "Documentation" },
+            { "slug": "docs", "imageCount": 0, "title": "Documentatıon" },
             { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns" }
           ]
         },
         {
           "id": "conceptual",
           "imageCount": 0,
-          "title": "Conceptual Writing",
+          "title": "Conceptual Wrıtıng",
           "projects": [
-            { "slug": "simplifying", "imageCount": 0, "title": "Simplifying Complexity" }
+            { "slug": "simplifying", "imageCount": 0, "title": "Sımplıfyıng Complexıty" }
           ]
         },
         {
           "id": "reflective",
           "imageCount": 0,
-          "title": "Reflective Writing",
+          "title": "Reflectıve Wrıtıng",
           "projects": [
-            { "slug": "processes", "imageCount": 0, "title": "Learning Processes" },
-            { "slug": "failure", "imageCount": 0, "title": "Failure & Revision" }
+            { "slug": "processes", "imageCount": 0, "title": "Learnıng Processes" },
+            { "slug": "failure", "imageCount": 0, "title": "Faılure & Revısıon" }
           ]
         },
         {
           "id": "languages",
           "imageCount": 0,
-          "title": "Language Practice",
+          "title": "Language Practıce",
           "projects": [
-            { "slug": "english", "imageCount": 0, "title": "Technical English" },
-            { "slug": "french", "imageCount": 0, "title": "French Learning" }
+            { "slug": "english", "imageCount": 0, "title": "Technıcal Englısh" },
+            { "slug": "french", "imageCount": 0, "title": "French Learnıng" }
           ]
         },
         {
@@ -161,16 +161,16 @@
           "imageCount": 0,
           "title": "Personal Essays",
           "projects": [
-            { "slug": "discipline", "imageCount": 0, "title": "Discipline & Consistency" }
+            { "slug": "discipline", "imageCount": 0, "title": "Dıscıplıne & Consıstency" }
           ]
         },
         {
           "id": "music",
           "imageCount": 5,
-          "title": "Music",
+          "title": "Musıc",
           "title_tr": "Müzik",
           "projects": [
-            { "slug": "album-ratings", "imageCount": 5, "title": "Album Ratings", "title_tr": "Albüm Yorumları" }
+            { "slug": "album-ratings", "imageCount": 5, "title": "Album Ratıngs", "title_tr": "Albüm Yorumları" }
           ]
         }
       ]
