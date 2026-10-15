@@ -549,3 +549,116 @@ body.toggling #main-header { transition-delay: 0s; }
 
 [data-block="media"] video,
 [data-block="media"] iframe { display: block; width: 100%; }
+
+
+/* ============= ALBUM RATINGS ============= */
+#project-detail-panel .albums { max-width: 900px; }
+
+#project-detail-panel .albums-intro {
+  max-width: 520px;
+  color: #777;
+  margin-bottom: 3rem;
+}
+
+#project-detail-panel .album-list {
+  list-style: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+/* Bir albüm satırı: solda kapak, sağda bilgi */
+#project-detail-panel .album {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+#project-detail-panel .album-cover { background: #f0f0f0; }
+#project-detail-panel .album-cover img {
+  width: 100%;
+  aspect-ratio: 1 / 1;      /* kare */
+  object-fit: cover;
+  margin: 0;
+}
+
+#project-detail-panel .album-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+#project-detail-panel .album-meta {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #999;
+}
+
+#project-detail-panel .album-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0.3rem 0 0.8rem;
+}
+
+/* Puan: yıldızlar + sayı */
+#project-detail-panel .album-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+#project-detail-panel .stars {
+  --percent: calc(var(--rating, 0) / 5 * 100%);   /* 4.5 → 90% */
+  font-size: 1.2rem;
+  line-height: 1;
+}
+#project-detail-panel .stars::before {
+  content: '★★★★★';
+  /* Yıldızların ilk %percent'i siyah, kalanı gri boyanır */
+  background: linear-gradient(90deg, var(--black) var(--percent), #d9d9d9 var(--percent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+#project-detail-panel .score { font-size: 0.8rem; font-weight: 700; }
+
+#project-detail-panel .album-comment {
+  max-width: 520px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 1.2rem;
+}
+
+#project-detail-panel .album-link {
+  margin-top: auto;          /* linki kapağın alt hizasına iter */
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--black);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: opacity 0.3s;
+}
+#project-detail-panel .album-link:hover { opacity: 0.5; }
+
+/* Opsiyonel: Spotify oynatıcısı (en alttaki bölüme bak) */
+#project-detail-panel .album-player {
+  width: 100%;
+  max-width: 520px;
+  height: 152px;
+  border: 0;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  #project-detail-panel .album { grid-template-columns: 110px 1fr; gap: 1rem; }
+  #project-detail-panel .album-title { font-size: 1.2rem; }
+}

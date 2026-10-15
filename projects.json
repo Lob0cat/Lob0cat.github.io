@@ -162,6 +162,14 @@
           "projects": [
             { "slug": "discipline", "imageCount": 0, "title": "Discipline & Consistency" }
           ]
+        },
+        {
+          "id": "music",
+          "imageCount": 0,
+          "title": "Music",
+          "projects": [
+            { "slug": "album-ratings", "imageCount": 0, "title": "Album Ratings" }
+          ]
         }
       ]
     }
