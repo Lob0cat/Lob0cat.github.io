@@ -165,10 +165,10 @@
         },
         {
           "id": "music",
-          "imageCount": 0,
+          "imageCount": 1,
           "title": "Music",
           "projects": [
-            { "slug": "album-ratings", "imageCount": 0, "title": "Album Ratings" }
+            { "slug": "album-ratings", "imageCount": 1, "title": "Album Ratings" }
           ]
         }
       ]
