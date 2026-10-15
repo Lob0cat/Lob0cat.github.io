@@ -73,6 +73,7 @@ async function handleHash() {
 function updateHeader(view, isDetail) {
   header.classList.remove('state-works', 'state-about', 'state-contact', 'state-detail');
   header.classList.add(`state-${view}`);
+  document.body.classList.toggle('is-detail', Boolean(isDetail));
   
   if (isDetail) header.classList.add('state-detail');
 

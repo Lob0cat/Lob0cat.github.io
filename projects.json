@@ -118,6 +118,7 @@
     },
     {
       "title": "WRITINGS",
+      "title_tr": "YAZILAR",
       "description": "Expression & Narrative",
       "categories": [
         {
@@ -167,8 +168,9 @@
           "id": "music",
           "imageCount": 1,
           "title": "Music",
+          "title_tr": "Müzik",
           "projects": [
-            { "slug": "album-ratings", "imageCount": 1, "title": "Album Ratings" }
+            { "slug": "album-ratings", "imageCount": 1, "title": "Album Ratings", "title_tr": "Albüm Yorumları" }
           ]
         }
       ]
