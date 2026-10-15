@@ -58,6 +58,7 @@ function findCategory(categoryId) {
 // ============= RENDER MOTORU =============
 function renderList(items, type, categoryId = null, headerData = null) {
   resetListScroll();
+  resetMediaObserver();
 
   titlesList.innerHTML = '';
   galleryLeft.innerHTML = '';
@@ -116,27 +117,101 @@ function renderList(items, type, categoryId = null, headerData = null) {
   if (isMobile()) setTimeout(handleMobileScrollSpy, 100);
 }
 
-// Gri çerçeve + içinde kırpılmayan resim
-function createFrame(item, src, onClick) {
-  const frame = document.createElement('div');
-  frame.className = 'work-frame';
-  if (item.frame) frame.style.aspectRatio = item.frame;   // opsiyonel: JSON'dan oran
-
-  const img = document.createElement('img');
-  img.loading = 'lazy';
-  img.alt = localTitle(item);
-  img.src = src;
-  img.onerror = () => { frame.style.display = 'none'; };  // dosya yoksa gizle
-
-  frame.onclick = onClick;
-  frame.appendChild(img);
-  return frame;
-}
 
 function goTo(item, type, categoryId) {
   window.location.hash = type === 'categories'
     ? `works/${item.id}`
     : `works/${categoryId}/${item.slug}`;
+}
+
+
+// ============= MEDYA YARDIMCILARI =============
+// Menüde kullanılacak oranlar. Ekle/çıkar serbest.
+// Bir oranı iki kere yazarsan o oran daha sık çıkar.
+const RATIOS = ['1/1', '4/3', '3/4', '16/9', '9/16'];
+
+const VIDEO_RE = /\.(mp4|webm)$/i;
+
+// Videolar sadece ekrandayken yüklenir ve oynar
+const mediaObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const v = entry.target;
+    if (entry.isIntersecting) {
+      if (!v.getAttribute('src')) v.src = v.dataset.src;   // ilk görünüşte yükle
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  });
+}, { rootMargin: '200px' });
+
+function resetMediaObserver() { mediaObserver.disconnect(); }
+
+// Dosya yolundan sabit (her ziyarette aynı) bir sayı üretir
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+// Bir öğenin görsel listesi: [{ url, ratio? }, ...]
+// "media" varsa onu kullanır, yoksa eski usul 1.webp, 2.webp... üretir
+function getMediaList(item, basePath) {
+  if (Array.isArray(item.media)) {
+    return item.media.map(m => {
+      const o = typeof m === 'string' ? { src: m } : m;
+      return { url: `${basePath}/${o.src}`, ratio: o.ratio };
+    });
+  }
+  const ext = item.format || 'webp';
+  const count = (item.imageCount !== undefined) ? item.imageCount : 6;
+  return Array.from({ length: count }, (_, i) => ({ url: `${basePath}/${i + 1}.${ext}` }));
+}
+
+// Her öğe için bir oran seçici üretir (yan yana aynı oran gelmesin diye önceki oranı hatırlar)
+function makeRatioPicker(item) {
+  let prev = null;
+  return (index, media) => {
+    if (media.ratio) return media.ratio;                                   // 1. görselin kendi oranı
+    if (Array.isArray(item.frames) && item.frames.length)                  // 2. sıralı liste
+      return item.frames[index % item.frames.length];
+    if (item.frame) return item.frame;                                     // 3. tek sabit oran
+
+    let r = RATIOS[hashString(media.url) % RATIOS.length];                 // 4. otomatik çeşitlilik
+    if (r === prev) r = RATIOS[(RATIOS.indexOf(r) + 1) % RATIOS.length];
+    prev = r;
+    return r;
+  };
+}
+
+// Gri çerçeve + içinde kırpılmayan resim/video
+function createFrame(item, url, ratio, onClick) {
+  const frame = document.createElement('div');
+  frame.className = 'work-frame';
+  frame.style.aspectRatio = ratio;
+
+  let el;
+  if (VIDEO_RE.test(url)) {
+    el = document.createElement('video');
+    el.muted = true;                       // otomatik oynatma için şart
+    el.setAttribute('muted', '');
+    el.loop = true;
+    el.playsInline = true;
+    el.setAttribute('playsinline', '');
+    el.preload = 'none';
+    el.dataset.src = url;
+    mediaObserver.observe(el);
+  } else {
+    el = document.createElement('img');
+    el.loading = 'lazy';
+    el.alt = localTitle(item);
+    el.src = url;
+  }
+  el.onerror = () => { frame.style.display = 'none'; };   // dosya yoksa gizle
+
+  frame.appendChild(el);
+  frame.onclick = onClick;
+  return frame;
 }
 
 function renderMobileImages(item, index, type, categoryId) {
@@ -152,12 +227,12 @@ function renderMobileImages(item, index, type, categoryId) {
   wrapper.appendChild(label);
 
   const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
-  const ext = item.format || 'webp';
-  const count = (item.imageCount !== undefined) ? item.imageCount : 6;
+  const list = getMediaList(item, basePath);
 
-  if (count > 0) {
+  if (list.length > 0) {
+    const pick = makeRatioPicker(item);
     wrapper.appendChild(
-      createFrame(item, `${basePath}/1.${ext}`, () => goTo(item, type, categoryId))
+      createFrame(item, list[0].url, pick(0, list[0]), () => goTo(item, type, categoryId))
     );
   }
   container.appendChild(wrapper);
@@ -173,14 +248,15 @@ function renderDesktopImages(item, index, type, categoryId) {
   row.appendChild(numEl);
 
   const basePath = type === 'categories' ? `images/${item.id}` : `images/${categoryId}/${item.slug}`;
-  const ext = item.format || 'webp';
-  const count = (item.imageCount !== undefined) ? item.imageCount : 6;
+  const list = getMediaList(item, basePath);
+  const pick = makeRatioPicker(item);
 
-  for (let j = 1; j <= count; j++) {
-    const frame = createFrame(item, `${basePath}/${j}.${ext}`, () => goTo(item, type, categoryId));
+  list.forEach((media, i) => {
+    const j = i + 1;
+    const frame = createFrame(item, media.url, pick(i, media), () => goTo(item, type, categoryId));
 
     if (j <= 2) {
-      // 1. ve 2. resim: sol (sütun 1-4)
+      // 1. ve 2. görsel: sol (sütun 1-4)
       frame.style.gridColumn = `${(j - 1) * 2 + 1} / span 2`;
       frame.style.gridRow = '2';
     } else {
@@ -191,14 +267,16 @@ function renderDesktopImages(item, index, type, categoryId) {
       frame.style.gridRow = String(2 + Math.floor(k / 4));
     }
     row.appendChild(frame);
-  }
+  });
 
   galleryLeft.appendChild(row);
 }
 
+
 export function showCategories() {
   currentCategory = null;
   resetListScroll();
+  resetMediaObserver();
   titlesList.innerHTML = '';
   galleryLeft.innerHTML = '';
   galleryRight.innerHTML = '';

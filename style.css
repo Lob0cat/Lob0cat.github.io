@@ -129,7 +129,8 @@ body {
   cursor: pointer;
   transition: opacity 0.4s ease;
 }
-.work-frame img {
+.work-frame img,
+.work-frame video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -602,7 +603,10 @@ body.toggling #main-header { transition-delay: 0s; }
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
-#project-detail-panel .album-cover { background: #f0f0f0; }
+#project-detail-panel .album-cover {
+  background: #f0f0f0;
+  align-self: start;      /* satıra yayılma, sadece resim kadar yüksek ol */
+}
 #project-detail-panel .album-cover img {
   width: 100%;
   aspect-ratio: 1 / 1;      /* kare */
@@ -673,8 +677,14 @@ body.toggling #main-header { transition-delay: 0s; }
   border-bottom: 1px solid currentColor;
   padding-bottom: 1px;
   transition: opacity 0.3s;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
 }
 #project-detail-panel .album-link:hover { opacity: 0.5; }
+#project-detail-panel .album-footer .album-link { margin-top: 0; }   /* iki kere itmesin */
+#project-detail-panel .album-date { font-size: 0.75rem; color: #999; }
 
 /* Opsiyonel: Spotify oynatıcısı (en alttaki bölüme bak) */
 #project-detail-panel .album-player {
