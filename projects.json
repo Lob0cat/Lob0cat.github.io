@@ -166,11 +166,11 @@
         },
         {
           "id": "music",
-          "imageCount": 1,
+          "imageCount": 5,
           "title": "Music",
           "title_tr": "Müzik",
           "projects": [
-            { "slug": "album-ratings", "imageCount": 1, "title": "Album Ratings", "title_tr": "Albüm Yorumları" }
+            { "slug": "album-ratings", "imageCount": 5, "title": "Album Ratings", "title_tr": "Albüm Yorumları" }
           ]
         }
       ]
