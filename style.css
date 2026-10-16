@@ -725,3 +725,258 @@ body.toggling #main-header { transition-delay: 0s; }
   color: #999;
   margin-bottom: 1.5rem;
 }
+
+
+/* ============= POST (yazı şablonu) ============= */
+#project-detail-panel .post {
+  --measure: 42rem;                       /* metin sütununun genişliği */
+  --body-font: var(--font-main);
+  max-width: var(--measure);
+  margin: 0 auto;
+  display: flow-root;                     /* float'ları içeride tutar */
+  color: var(--black);
+}
+/* Okuma yazısı serif olsun istersen article'a "serif" sınıfı ekle */
+#project-detail-panel .post.serif {
+  --body-font: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+
+/* ---- Başlık bölümü ---- */
+#project-detail-panel .post-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #999;
+  margin: 0 0 1rem;
+}
+#project-detail-panel .post-title {
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0 0 1.2rem;
+}
+#project-detail-panel .post-lede {
+  font-size: 1.3rem;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #555;
+  margin: 0;
+  max-width: 34rem;
+  font-family: var(--body-font);
+}
+#project-detail-panel .post-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 2rem 0 3rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+#project-detail-panel .post-meta dt {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #999;
+}
+#project-detail-panel .post-meta dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Başlık açılırken hafifçe yukarı süzülür */
+@keyframes post-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+#project-detail-panel .post-head > * { animation: post-rise 0.8s var(--ease-standard) both; }
+#project-detail-panel .post-head > :nth-child(2) { animation-delay: 0.08s; }
+#project-detail-panel .post-head > :nth-child(3) { animation-delay: 0.16s; }
+#project-detail-panel .post-head > :nth-child(4) { animation-delay: 0.24s; }
+@media (prefers-reduced-motion: reduce) {
+  #project-detail-panel .post-head > * { animation: none; }
+}
+
+/* ---- Gövde yazısı ---- */
+#project-detail-panel .post p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0 0 1.25em;
+  font-family: var(--body-font);
+}
+#project-detail-panel .post h2 {
+  clear: both;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 3rem 0 1rem;
+}
+#project-detail-panel .post h3 {
+  clear: both;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #777;
+  margin: 2rem 0 0.6rem;
+}
+#project-detail-panel .post a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: opacity 0.3s;
+}
+#project-detail-panel .post a:hover { opacity: 0.5; }
+
+/* İlk harfi büyük (opsiyonel, ilk paragrafa class="dropcap") */
+#project-detail-panel .post .dropcap::first-letter {
+  float: left;
+  font-size: 3.6em;
+  line-height: 0.85;
+  font-weight: 700;
+  padding: 0.08em 0.12em 0 0;
+}
+
+#project-detail-panel .post ul,
+#project-detail-panel .post ol { margin: 0 0 1.4em; padding-left: 1.3em; }
+#project-detail-panel .post ul { list-style: disc; }
+#project-detail-panel .post ol { list-style: decimal; }
+#project-detail-panel .post li {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 0.4em;
+  font-family: var(--body-font);
+}
+
+/* Alıntı */
+#project-detail-panel .post blockquote {
+  clear: both;
+  margin: 2.5rem 0;
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--black);
+  font-size: 1.35rem;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: var(--body-font);
+}
+#project-detail-panel .post blockquote cite {
+  display: block;
+  margin-top: 0.7rem;
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #999;
+}
+
+/* Not kutusu */
+#project-detail-panel .post .note {
+  clear: both;
+  background: #f3f3f3;
+  padding: 1.1rem 1.3rem;
+  margin: 2rem 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  font-family: var(--body-font);
+}
+
+/* Ayraç: · · · */
+#project-detail-panel .post hr {
+  clear: both;
+  border: 0;
+  height: auto;
+  margin: 3rem 0;
+  text-align: center;
+}
+#project-detail-panel .post hr::before {
+  content: '·  ·  ·';
+  letter-spacing: 0.4em;
+  color: #bbb;
+}
+
+/* Kod */
+#project-detail-panel .post code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: #f1f1f1;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+#project-detail-panel .post pre {
+  clear: both;
+  background: #111;
+  color: #eee;
+  padding: 1rem 1.2rem;
+  margin: 1.8rem 0;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+#project-detail-panel .post pre code { background: none; padding: 0; color: inherit; }
+
+/* ---- Resimler ---- */
+#project-detail-panel .post figure { margin: 2rem 0; }
+#project-detail-panel .post figure img,
+#project-detail-panel .post figure video {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+#project-detail-panel .post figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #999;
+}
+
+/* Sağa / sola yaslı: yazı etrafında akar */
+#project-detail-panel .post .fig-right { float: right; width: 42%; margin: 0.3rem 0 1rem 2rem; }
+#project-detail-panel .post .fig-left  { float: left;  width: 42%; margin: 0.3rem 2rem 1rem 0; }
+
+/* Yan yana iki resim */
+#project-detail-panel .post .fig-row {
+  clear: both;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin: 2rem 0;
+}
+#project-detail-panel .post .fig-row figure { margin: 0; }
+
+/* Galerideki gibi: gri çerçeve, kırpma yok (oran --ratio ile) */
+#project-detail-panel .post figure.framed img {
+  aspect-ratio: var(--ratio, 4 / 3);
+  object-fit: contain;
+  background: #ececec;
+}
+
+/* Geniş resim: metin sütunundan taşar (sadece geniş ekranda) */
+#project-detail-panel .post .fig-wide { clear: both; }
+@media (min-width: 1400px) {
+  #project-detail-panel .post .fig-wide { width: calc(100% + 4rem); margin-left: -2rem; }
+}
+
+/* ---- Alt bilgi ---- */
+#project-detail-panel .post-foot {
+  clear: both;
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  #project-detail-panel .post .fig-right,
+  #project-detail-panel .post .fig-left { float: none; width: 100%; margin: 1.5rem 0; }
+  #project-detail-panel .post-lede { font-size: 1.15rem; }
+  #project-detail-panel .post blockquote { font-size: 1.15rem; }
+}
