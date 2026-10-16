@@ -1,5 +1,65 @@
 {
   "sections": [
+    
+     {
+      "title": "WRITINGS",
+      "title_tr": "YAZILAR",
+      "description": "Expression & Narrative",
+      "categories": [
+        {
+          "id": "technical-writing",
+          "imageCount": 0,
+          "title": "Technıcal Wrıtıng",
+          "projects": [
+            { "slug": "docs", "imageCount": 0, "title": "Documentatıon" },
+            { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns" }
+          ]
+        },
+        {
+          "id": "conceptual",
+          "imageCount": 0,
+          "title": "Conceptual Wrıtıng",
+          "projects": [
+            { "slug": "simplifying", "imageCount": 0, "title": "Sımplıfyıng Complexıty" }
+          ]
+        },
+        {
+          "id": "reflective",
+          "imageCount": 0,
+          "title": "Reflectıve Wrıtıng",
+          "projects": [
+            { "slug": "processes", "imageCount": 0, "title": "Learnıng Processes" },
+            { "slug": "failure", "imageCount": 0, "title": "Faılure & Revısıon" }
+          ]
+        },
+        {
+          "id": "languages",
+          "imageCount": 0,
+          "title": "Language Practıce",
+          "projects": [
+            { "slug": "english", "imageCount": 0, "title": "Technıcal Englısh" },
+            { "slug": "french", "imageCount": 0, "title": "French Learnıng" }
+          ]
+        },
+        {
+          "id": "essays",
+          "imageCount": 0,
+          "title": "Personal Essays",
+          "projects": [
+            { "slug": "discipline", "imageCount": 0, "title": "Dıscıplıne & Consıstency" }
+          ]
+        },
+        {
+          "id": "music",
+          "imageCount": 5,
+          "title": "Musıc",
+          "title_tr": "Müzik",
+          "projects": [
+            { "slug": "album-ratings", "imageCount": 5, "title": "Album Ratıngs", "title_tr": "Albüm Yorumları" }
+          ]
+        }
+      ]
+    },   
     {
       "title": "IDEAS",
       "description": "Mental Models & Theory",
@@ -112,65 +172,6 @@
           "projects": [
             { "slug": "calisthenics", "imageCount": 0, "title": "Calısthenıcs" },
             { "slug": "movement", "imageCount": 0, "title": "Movement Analysıs" }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "WRITINGS",
-      "title_tr": "YAZILAR",
-      "description": "Expression & Narrative",
-      "categories": [
-        {
-          "id": "technical-writing",
-          "imageCount": 0,
-          "title": "Technıcal Wrıtıng",
-          "projects": [
-            { "slug": "docs", "imageCount": 0, "title": "Documentatıon" },
-            { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns" }
-          ]
-        },
-        {
-          "id": "conceptual",
-          "imageCount": 0,
-          "title": "Conceptual Wrıtıng",
-          "projects": [
-            { "slug": "simplifying", "imageCount": 0, "title": "Sımplıfyıng Complexıty" }
-          ]
-        },
-        {
-          "id": "reflective",
-          "imageCount": 0,
-          "title": "Reflectıve Wrıtıng",
-          "projects": [
-            { "slug": "processes", "imageCount": 0, "title": "Learnıng Processes" },
-            { "slug": "failure", "imageCount": 0, "title": "Faılure & Revısıon" }
-          ]
-        },
-        {
-          "id": "languages",
-          "imageCount": 0,
-          "title": "Language Practıce",
-          "projects": [
-            { "slug": "english", "imageCount": 0, "title": "Technıcal Englısh" },
-            { "slug": "french", "imageCount": 0, "title": "French Learnıng" }
-          ]
-        },
-        {
-          "id": "essays",
-          "imageCount": 0,
-          "title": "Personal Essays",
-          "projects": [
-            { "slug": "discipline", "imageCount": 0, "title": "Dıscıplıne & Consıstency" }
-          ]
-        },
-        {
-          "id": "music",
-          "imageCount": 5,
-          "title": "Musıc",
-          "title_tr": "Müzik",
-          "projects": [
-            { "slug": "album-ratings", "imageCount": 5, "title": "Album Ratıngs", "title_tr": "Albüm Yorumları" }
           ]
         }
       ]
