@@ -13,45 +13,45 @@
           "title_tr": "Teknik Yazılar",
           "projects": [
             { "slug": "docs", "imageCount": 0, "title": "Documentatıon" },
-            { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns", "title_tr": "yapısal iş dökümü" }
+            { "slug": "breakdowns", "imageCount": 0, "title": "Structured Breakdowns", "title_tr": "Yapısal İş Dökümü" }
           ]
         },
         {
           "id": "conceptual",
           "imageCount": 0,
           "title": "Conceptual Wrıtıng",
-          "title_tr": "Kavramsal YAZILAR",
+          "title_tr": "Kavramsal Yazılar",
           "projects": [
-            { "slug": "simplifying", "imageCount": 0, "title": "Sımplıfyıng Complexıty", "title_tr": "karmaşığı bbasitleştirmek" }
+            { "slug": "simplifying", "imageCount": 0, "title": "Sımplıfyıng Complexıty", "title_tr": "Karmaşığı Basitleştirmek" }
           ]
         },
         {
           "id": "reflective",
           "imageCount": 0,
           "title": "Reflectıve Wrıtıng",
-          "title_tr": "yansıtıcı yazılar",
+          "title_tr": "Yansıtıcı Yazılar",
           "projects": [
-            { "slug": "processes", "imageCount": 0, "title": "Learnıng Processes", "title_tr": "öğrenim süreci" },
-            { "slug": "failure", "imageCount": 0, "title": "Faılure & Revısıon", "title_tr": "başarısızlık ve gözden geçirme" }
+            { "slug": "processes", "imageCount": 0, "title": "Learnıng Processes", "title_tr": "Öğrenim Süreci" },
+            { "slug": "failure", "imageCount": 0, "title": "Faılure & Revısıon", "title_tr": "Başarısızlık ve Gözden Geçirme" }
           ]
         },
         {
           "id": "languages",
           "imageCount": 0,
           "title": "Language Practıce",
-          "title_tr": "yabancı dil pratiği",
+          "title_tr": "Yabancı Dil Pratiği",
           "projects": [
-            { "slug": "english", "imageCount": 0, "title": "Technıcal Englısh", "title_tr": "teknik alanda ingilzice" },
-            { "slug": "french", "imageCount": 0, "title": "French Learnıng", "title_tr": "Fransızca öğrenimi" }
+            { "slug": "english", "imageCount": 0, "title": "Technıcal Englısh", "title_tr": "Teknik İngilzice" },
+            { "slug": "french", "imageCount": 0, "title": "French Learnıng", "title_tr": "Fransızca Öğrenimi" }
           ]
         },
         {
           "id": "essays",
           "imageCount": 0,
           "title": "Personal Essays",
-          "title_tr": "kişisel denemeler",
+          "title_tr": "Kişisel Denemeler",
           "projects": [
-            { "slug": "discipline", "imageCount": 0, "title": "Dıscıplıne & Consıstency", "title_tr": "disiplin ve süreklilik" }
+            { "slug": "discipline", "imageCount": 0, "title": "Dıscıplıne & Consıstency", "title_tr": "Disiplin ve Süreklilik" }
           ]
         },
         {
@@ -67,129 +67,129 @@
     },   
     {
       "title": "IDEAS",
-      "title_tr": "düşünceler",
+      "title_tr": "DÜŞÜNCELER",
       "description": "Mental Models & Theory",
       "categories": [
         {
           "id": "mathematics",
           "imageCount": 0,
           "title": "Mathematıcs",
-          "title_tr": "matematik",
+          "title_tr": "Matematik",
           "projects": [
-            { "slug": "analysis", "imageCount": 0, "title": "Analysıs & Calculus", "title_tr": "Analiz ve kalkülüs" },
-            { "slug": "linear-algebra", "imageCount": 0, "title": "Lınear Algebra", "title_tr": "lineer cebir" },
-            { "slug": "modeling", "imageCount": 0, "title": "Mathematıcal Modelıng", "title_tr": "matematiksel modelleme" }
+            { "slug": "analysis", "imageCount": 0, "title": "Analysıs & Calculus", "title_tr": "Analiz ve Kalkülüs" },
+            { "slug": "linear-algebra", "imageCount": 0, "title": "Lınear Algebra", "title_tr": "lineer Cebir" },
+            { "slug": "modeling", "imageCount": 0, "title": "Mathematıcal Modelıng", "title_tr": "Matematiksel Modelleme" }
           ]
         },
         {
           "id": "physics",
           "imageCount": 0,
           "title": "Physıcs",
-          "title_tr": "fizik",
+          "title_tr": "Fizik",
           "projects": [
-            { "slug": "mechanics", "imageCount": 0, "title": "Classıcal Mechanıcs", "title_tr": "klasik mekanik" },
-            { "slug": "electromagnetism", "imageCount": 0, "title": "Electromagnetısm", "title_tr": "elektromanyetizma" },
-            { "slug": "intuition", "imageCount": 0, "title": "Physıcal Intuıtıon", "title_tr": "fizik alanında sezi" }
+            { "slug": "mechanics", "imageCount": 0, "title": "Classıcal Mechanıcs", "title_tr": "Klasik Mekanik" },
+            { "slug": "electromagnetism", "imageCount": 0, "title": "Electromagnetısm", "title_tr": "Elektromanyetizma" },
+            { "slug": "intuition", "imageCount": 0, "title": "Physıcal Intuıtıon", "title_tr": "Fizik Alanında Sezi" }
           ]
         },
         {
           "id": "systems",
           "imageCount": 0,
           "title": "Systems Thınkıng",
-          "title_tr": "Sistem düşüncesi",
+          "title_tr": "Sistem Düşüncesi",
           "projects": [
-            { "slug": "dynamical", "imageCount": 0, "title": "Dynamıcal Systems", "title_tr": "dinamik sistemler" },
-            { "slug": "control-theory", "imageCount": 0, "title": "Control Theory", "title_tr": "kontrol teorisi" },
-            { "slug": "complexity", "imageCount": 0, "title": "Complexıty & Emergence", "title_tr": "karmaşıklık ve oluşum" }
+            { "slug": "dynamical", "imageCount": 0, "title": "Dynamıcal Systems", "title_tr": "Dinamik Sistemler" },
+            { "slug": "control-theory", "imageCount": 0, "title": "Control Theory", "title_tr": "Kontrol Teorisi" },
+            { "slug": "complexity", "imageCount": 0, "title": "Complexıty & Emergence", "title_tr": "Karmaşıklık ve Oluşum" }
           ]
         },
         {
           "id": "learning",
           "imageCount": 0,
           "title": "Learnıng Process",
-          "title_tr": "öğrenme süreci",
+          "title_tr": "Öğrenme Süreci",
           "projects": [
-            { "slug": "understanding", "imageCount": 0, "title": "How Understandıng Forms", "title_tr": "anlayış nasıl gerçekleşir" },
-            { "slug": "intuition-limits", "imageCount": 0, "title": "Lımıts of Intuıtıon", "title_tr": "sezginin sınırları" }
+            { "slug": "understanding", "imageCount": 0, "title": "How Understandıng Forms", "title_tr": "Anlayış Nasıl Gerçekleşir" },
+            { "slug": "intuition-limits", "imageCount": 0, "title": "Lımıts of Intuıtıon", "title_tr": "Sezginin Sınırları" }
           ]
         },
         {
           "id": "philosophy",
           "imageCount": 0,
           "title": "Phılosophy of Practıce",
-          "title_tr": "pratiğin felsefesi",
+          "title_tr": "Pratiğin Felsefesi",
           "projects": [
-            { "slug": "knowing", "imageCount": 0, "title": "What means to Know", "title_tr": "bilmek ne anlama gelir" },
-            { "slug": "precision", "imageCount": 0, "title": "Precısıon vs Usefulness", "title_tr": "kesinlik ve kullanışlılık" }
+            { "slug": "knowing", "imageCount": 0, "title": "What means to Know", "title_tr": "Bilmek Ne Anlama Gelir" },
+            { "slug": "precision", "imageCount": 0, "title": "Precısıon vs Usefulness", "title_tr": "Kesinlik ve Kullanışlılık" }
           ]
         }
       ]
     },
     {
       "title": "WORKS",
-      "title_tr": "çalışmalar",
+      "title_tr": "ÇALIŞMALAR",
       "description": "Engineering & Implementation",
       "categories": [
         {
           "id": "robotics",
           "imageCount": 0,
           "title": "Robotıcs",
-          "title_tr": "robotik",
+          "title_tr": "Robotik",
           "projects": [
-            { "slug": "ros-systems", "imageCount": 0, "title": "ROS-based Systems", "title_tr": "ROS tabanlı sistemler" },
-            { "slug": "uav", "imageCount": 0, "title": "UAV & Drones", "title_tr": "İHA & drone" },
-            { "slug": "control-pipelines", "imageCount": 0, "title": "Control Pıpelınes", "title_tr": "kontrol hatları"}
+            { "slug": "ros-systems", "imageCount": 0, "title": "ROS-based Systems", "title_tr": "ROS Tabanlı Sistemler" },
+            { "slug": "uav", "imageCount": 0, "title": "UAV & Drones", "title_tr": "İHA & Drone" },
+            { "slug": "control-pipelines", "imageCount": 0, "title": "Control Pıpelınes", "title_tr": "Kontrol Hatları"}
           ]
         },
         {
           "id": "vision",
           "imageCount": 0,
           "title": "Computer Vısıon",
-          "title_tr": "bilgisayarlı görü",
+          "title_tr": "Bilgisayarlı Görü",
           "projects": [
-            { "slug": "processing", "imageCount": 0, "title": "Image Processıng", "title_tr": "görüntü işleme" },
-            { "slug": "object-detection", "imageCount": 0, "title": "Object Detectıon", "title_tr": "nesne algılama" },
-            { "slug": "depth", "imageCount": 0, "title": "Depth Perceptıon", "title_tr": "derinlik algılama" }
+            { "slug": "processing", "imageCount": 0, "title": "Image Processıng", "title_tr": "Görüntü İşleme" },
+            { "slug": "object-detection", "imageCount": 0, "title": "Object Detectıon", "title_tr": "Nesne Algılama" },
+            { "slug": "depth", "imageCount": 0, "title": "Depth Perceptıon", "title_tr": "Derinlik Algılama" }
           ]
         },
         {
           "id": "simulation",
           "imageCount": 0,
           "title": "Sımulatıon",
-          "title_tr": "simülasyon",
+          "title_tr": "Simülasyon",
           "projects": [
-            { "slug": "physics-sims", "imageCount": 0, "title": "Physıcs Sımulators", "title_tr": "fizik simülatörleri" },
-            { "slug": "model-validation", "imageCount": 0, "title": "Model Valıdatıon" , "title_tr": "model doğrulama"}
+            { "slug": "physics-sims", "imageCount": 0, "title": "Physıcs Sımulators", "title_tr": "Fizik Simülatörleri" },
+            { "slug": "model-validation", "imageCount": 0, "title": "Model Valıdatıon" , "title_tr": "Model Doğrulama"}
           ]
         },
         {
           "id": "software",
           "imageCount": 0,
           "title": "Software Systems",
-          "title_tr": "YAZılım sistemleri",
+          "title_tr": "Yazılım Sistemleri",
           "projects": [
-            { "slug": "linux-dev", "imageCount": 0, "title": "Lınux Development" , "title_tr": "linux geliştiriciliği"},
-            { "slug": "docker", "imageCount": 0, "title": "Docker & Contaıners", "title_tr": "docker & konteynerler" }
+            { "slug": "linux-dev", "imageCount": 0, "title": "Lınux Development" , "title_tr": "Linux Geliştiriciliği"},
+            { "slug": "docker", "imageCount": 0, "title": "Docker & Contaıners", "title_tr": "Docker & Konteynerler" }
           ]
         },
         {
           "id": "embedded",
           "imageCount": 0,
           "title": "Embedded & Hardware",
-          "title_tr": "gömülü & donanım",
+          "title_tr": "Gömülü & Donanım",
           "projects": [
-            { "slug": "jetson", "imageCount": 0, "title": "Jetson Platforms", "title_tr": "jetson platformları" },
-            { "slug": "microcontrollers", "imageCount": 0, "title": "Mıcrocontrollers" , "title_tr": "mikrokontrol kartları"}
+            { "slug": "jetson", "imageCount": 0, "title": "Jetson Platforms", "title_tr": "Jetson Platformları" },
+            { "slug": "microcontrollers", "imageCount": 0, "title": "Mıcrocontrollers" , "title_tr": "Mikrokontrol Kartları"}
           ]
         },
         {
           "id": "training",
           "imageCount": 0,
           "title": "Physıcal Traınıng",
-          "title_tr": "fiziksel antrenman",
+          "title_tr": "Fiziksel Antrenman",
           "projects": [
-            { "slug": "calisthenics", "imageCount": 0, "title": "Calısthenıcs", "title_tr": "kalisteniks" },
-            { "slug": "movement", "imageCount": 0, "title": "Movement Analysıs", "title_tr": "hareket analizi" }
+            { "slug": "calisthenics", "imageCount": 0, "title": "Calısthenıcs", "title_tr": "Kalisteniks" },
+            { "slug": "movement", "imageCount": 0, "title": "Movement Analysıs", "title_tr": "Hareket Analizi" }
           ]
         }
       ]
